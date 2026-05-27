@@ -8,8 +8,9 @@
 #
 # Published: the deck, the talk script, asset checklist, reference theme,
 # CLAUDE.md, docs/, refs/, and this script.
-# NOT published: code-examples/ (real Dodo source) and iOS-ARCHITECTURE.md
-# (internal module names). The working repo keeps both on disk.
+# NOT published: code-examples/ (real Dodo source), kept on disk in the
+# working repo but never committed. (iOS-ARCHITECTURE.md was deleted from
+# the project entirely; the scrub below stays as a belt-and-suspenders.)
 #
 # Usage:
 #   ./publish.sh ["commit message"]

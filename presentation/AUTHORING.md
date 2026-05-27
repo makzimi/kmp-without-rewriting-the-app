@@ -9,19 +9,16 @@ Claude session — write changes accordingly).
 
 ---
 
-## 0. The golden rule: plan ↔ deck ↔ iOS-arch stay in sync
+## 0. The golden rule: plan ↔ deck stay in sync
 
-The repo has three artifacts that describe the same talk:
+The repo has two artifacts that describe the same talk:
 
 | File | Role | Authority |
 |---|---|---|
 | `../PRESENTATION_PLAN.md` | The talk script — slide intent, speaker notes, code-snippet sources, image needs. | **Source of truth for what the talk *says*.** |
 | `presentation/index.html` | The actual deck rendered to the audience. | **Source of truth for what the audience *sees*.** |
-| `../iOS-ARCHITECTURE.md` | The Drinkit iOS module/layer graph at "ground level". | Must agree with the iOS-architecture slides (currently ~51, ~52, ~53). |
 
-The plan and deck **must agree on slide count and slide order**. When you
-touch an iOS-architecture slide, also touch `iOS-ARCHITECTURE.md` if the
-story changes (it shows the same structure at a different zoom level). The
+The plan and deck **must agree on slide count and slide order**. The
 `PRESENTATION_PLAN.md` slide-naming convention
 (`### Slide N | TYPE | short title`) is mirrored verbatim in HTML
 comments above each `<section>`:
@@ -642,8 +639,6 @@ For a quick orientation when coming back cold:
 
 1. `../PRESENTATION_PLAN.md` — read the **slide-naming convention**
    block at the top and the **slide-count summary** at the bottom.
-1a. `../iOS-ARCHITECTURE.md` — only if you'll touch the iOS architecture
-   slides (currently ~51, ~52, ~53). It's the third synced artifact (see §0).
 2. `../dodo-theme/README.md` — read the **slide layout patterns** and
    **guidelines for an AI agent** sections.
 3. `presentation/css/deck.css` — read the comments at section

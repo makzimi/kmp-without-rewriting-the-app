@@ -4,13 +4,12 @@ This is the source for a single conference talk:
 
 > **"KMP without rewriting the app"** — Max Kachinkin · Dodo Engineering · GDG Almaty 2026.
 
-The talk exists in three tightly coupled artifacts. **You must keep them in sync.**
+The talk exists in two tightly coupled artifacts. **You must keep them in sync.**
 
 | File | Role |
 |---|---|
 | [`PRESENTATION_PLAN.md`](PRESENTATION_PLAN.md) | The talk script — slide intent, speaker notes, code citations, image needs. Source of truth for what the talk *says*. |
 | [`presentation/index.html`](presentation/index.html) | The deck rendered to the audience. Source of truth for what the audience *sees*. |
-| [`iOS-ARCHITECTURE.md`](iOS-ARCHITECTURE.md) | The Drinkit iOS module/layer story. Must agree with what the iOS-architecture slides portray (currently the diagrams used on slides 51, 52, 53 and the code on slide 51). |
 
 ## The one rule you must not break
 
@@ -18,11 +17,6 @@ The talk exists in three tightly coupled artifacts. **You must keep them in sync
 They are joined by slide number — each `<section>` in `index.html` has an HTML
 comment `<!-- N · TYPE · short title -->` that mirrors the plan's
 `### Slide N | TYPE | short title` heading verbatim.
-
-If the change modifies the iOS architecture story — slides covering the iOS
-module graph, layered shape, or iOS-specific code (currently slides
-~51, ~52, ~53) — also propagate to `iOS-ARCHITECTURE.md`. It describes the
-same structure at a different zoom level; they must not contradict.
 
 If a user asks you to "edit slide 77", "add a slide after 88",
 "remove slide 100", or "reorder these slides", you **must** apply the
@@ -80,7 +74,6 @@ cd presentation && python3 -m http.server 8000
 ├── CLAUDE.md                  ← this file (auto-loaded)
 ├── PRESENTATION_PLAN.md       ← talk script, slide-by-slide
 ├── ASSETS.md                  ← v3 asset checklist (what's still missing)
-├── iOS-ARCHITECTURE.md        ← synced with deck (see "one rule" above)
 ├── docs/superpowers/          ← specs + plans for iteration cycles
 │   ├── specs/
 │   └── plans/
@@ -96,7 +89,7 @@ cd presentation && python3 -m http.server 8000
 └── presentation/              ← the actual deliverable
     ├── README.md              ← how to run
     ├── AUTHORING.md           ← how to edit (read this!)
-    ├── index.html             ← ~127 slides, in plan order
+    ├── index.html             ← 114 slides, in plan order
     ├── css/{theme,slide}.css  ← mirrors of dodo-theme; DO NOT EDIT HERE
     ├── css/deck.css           ← deck-specific styles + animations
     ├── js/nav.js              ← runtime: nav, scaling, fullscreen, overview
@@ -129,9 +122,10 @@ If you get a vague prompt ("make the architecture slide nicer"), ask
 **which slide number** before changing anything. Multiple slides
 share similar topics (the talk has 11 diagrams across 7 sections).
 
-## v2 onward — three synced artifacts
+## Synced artifacts
 
-After v2 (May 2026), the synced-files set grew to three:
-`PRESENTATION_PLAN.md` + `presentation/index.html` + `iOS-ARCHITECTURE.md`.
-See `docs/superpowers/specs/2026-05-24-deck-v2-design.md` §5.1 for the
-rationale. Tags: `v1` = Initial commit, `v2` = post-restructure deck.
+The synced-files set is two files: `PRESENTATION_PLAN.md` +
+`presentation/index.html`. (A third, `iOS-ARCHITECTURE.md`, existed from
+v2 until v3.3 and was then removed; some dated `docs/superpowers/` design
+records still mention it as history.) Tags: `v1` = Initial commit, `v2` =
+post-restructure deck.
