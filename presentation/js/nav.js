@@ -42,7 +42,7 @@
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const scale = Math.min(vw / W, vh / H) * 0.96;
-    deck.style.transform = `scale(${scale})`;
+    deck.style.transform = `translate(-50%, -50%) scale(${scale})`;
   }
 
   function toggleOverview() {

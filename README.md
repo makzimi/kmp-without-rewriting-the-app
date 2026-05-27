@@ -41,14 +41,12 @@ codebase and hand-drawn architecture diagrams.
 │   ├── README.md          ← how to run the deck locally
 │   └── AUTHORING.md       ← how the deck is built and how to edit it
 ├── PRESENTATION_PLAN.md   ← the talk script — slide-by-slide intent + notes
-├── iOS-ARCHITECTURE.md    ← the Drinkit iOS module/layer story (kept in sync)
 ├── ASSETS.md              ← asset checklist
 └── dodo-theme/            ← reference design theme (palette, typography)
 ```
 
-The three artifacts `PRESENTATION_PLAN.md`, `presentation/index.html`, and
-`iOS-ARCHITECTURE.md` are kept **in sync** — see `presentation/AUTHORING.md`
-for the rule.
+`PRESENTATION_PLAN.md` and `presentation/index.html` are kept **in sync** —
+see `presentation/AUTHORING.md` for the rule.
 
 ## Run it locally
 

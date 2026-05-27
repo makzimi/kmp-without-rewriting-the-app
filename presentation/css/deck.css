@@ -22,7 +22,12 @@ body {
 .deck {
   width: var(--slide-width);
   height: var(--slide-height);
-  position: relative;
+  /* Pin the deck's geometric center to the viewport center so scaling
+     stays symmetric on any window size (flex-centering an overflowing
+     fixed-size box drifts in some browsers). nav.js sets the transform. */
+  position: absolute;
+  top: 50%;
+  left: 50%;
   transform-origin: center center;
 }
 
@@ -620,7 +625,7 @@ pre.code-block {
   body { background: #fff; }
   .nav, .hint { display: none !important; }
   .stage { position: static; }
-  .deck { transform: none !important; width: auto; height: auto; }
+  .deck { transform: none !important; width: auto; height: auto; position: static; top: auto; left: auto; }
   .deck .slide { display: block !important; page-break-after: always; box-shadow: none; }
 }
 
