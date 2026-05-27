@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1320, initial-scale=1" />
+  <title>Dodo Engineering — slide theme preview</title>
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/slide.css" />
+  <style>
+    /* Deck shell — wraps individual slides, shows one at a time. */
+    body { background: var(--color-bg-subtle); }
+    .deck { position: relative; }
+    .deck .slide { display: none; margin: 24px auto; box-shadow: var(--shadow-lg); }
+    .deck .slide.is-active { display: block; }
+    .deck__nav {
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 8px; align-items: center;
+      background: var(--color-text-primary); color: #fff;
+      padding: 8px 14px; border-radius: var(--radius-pill);
+      font-family: var(--font-mono); font-size: 12px;
+    }
+    .deck__nav button {
+      background: transparent; border: 0; color: #fff;
+      font: inherit; padding: 4px 8px; cursor: pointer;
+      border-radius: var(--radius-sm);
+    }
+    .deck__nav button:hover { background: rgba(255,255,255,0.12); }
+    .deck__nav .deck__counter { opacity: 0.7; }
+  </style>
+</head>
+<body>
+  <div class="slide-stage">
+    <div class="deck" id="deck">
+      <!-- 01 — Cover -->
+      <section class="slide slide--cover is-active" data-layout="cover">
+        <h1 class="slide__big-title">Building reliable<br/>distributed systems</h1>
+        <p class="slide__big-subtitle">Dodo Engineering &middot; Internal tech talk &middot; May 2026</p>
+        <div class="slide__page-num">01</div>
+      </section>
+
+      <!-- 02 — Section header -->
+      <section class="slide slide--section" data-layout="section">
+        <p class="slide__section-eyebrow">// chapter 01</p>
+        <h2 class="slide__section-title">Why eventual consistency<br/>was the wrong default</h2>
+        <div class="slide__page-num">02</div>
+      </section>
+
+      <!-- 03 — Title + body -->
+      <section class="slide slide--content" data-layout="title-and-body">
+        <h3 class="slide__title">What changed in the v3 architecture</h3>
+        <div class="slide__body">
+          <p class="t-subtitle" style="margin:0 0 var(--space-4);">
+            Three things moved off the critical path so the order pipeline could survive a region failure.
+          </p>
+          <ul class="list">
+            <li>Order events now publish through a <code>kafka</code> topic instead of a synchronous RPC.</li>
+            <li>Inventory reservations use a <span class="tag tag--mint">CRDT</span> backed by Riak.</li>
+            <li>Payment authorization is idempotent and retried by the gateway, not the client.</li>
+            <li>Read paths are served from a regional cache with a 50ms staleness budget.</li>
+          </ul>
+          <p class="t-caption" style="margin-top: var(--space-6);">See ADR-0042 for the full migration plan.</p>
+        </div>
+        <div class="slide__page-num">03</div>
+      </section>
+
+      <!-- 04 — Two column -->
+      <section class="slide slide--two-col" data-layout="two-column">
+        <h3 class="slide__title">Before vs. after the migration</h3>
+        <div class="slide__columns">
+          <div class="slide__col">
+            <p class="t-mono-bold" style="color: var(--color-accent-orange); margin: 0 0 var(--space-3);">// before</p>
+            <ul class="list">
+              <li>Single PG primary in eu-central</li>
+              <li>Sync RPC between order &amp; inventory</li>
+              <li>P99 checkout: <strong>820&nbsp;ms</strong></li>
+              <li>Recovery from a region failure: <strong>~14&nbsp;min</strong></li>
+              <li>Two on-call engineers paged per outage</li>
+            </ul>
+          </div>
+          <div class="slide__col">
+            <p class="t-mono-bold" style="color: var(--color-accent-purple); margin: 0 0 var(--space-3);">// after</p>
+            <ul class="list">
+              <li>Multi-region writable cluster</li>
+              <li>Async events via <code>kafka</code></li>
+              <li>P99 checkout: <strong>240&nbsp;ms</strong></li>
+              <li>Recovery: <strong>&lt; 90&nbsp;sec</strong> (automated)</li>
+              <li>Zero pages in the last 60 days</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide__page-num">04</div>
+      </section>
+
+      <!-- 05 — Palette reference -->
+      <section class="slide slide--content" data-layout="palette-reference">
+        <h3 class="slide__title">Brand colors — quick reference</h3>
+        <div style="display: flex; gap: var(--space-12);">
+          <div style="flex: 0 0 30%;">
+            <p class="t-mono" style="color: var(--color-text-muted); text-transform: uppercase; letter-spacing: var(--tracking-wide); margin: 0 0 var(--space-2);">Neutrals</p>
+            <div style="display:flex; flex-direction:column; gap: var(--space-3);">
+              <div style="display:flex; gap: var(--space-3); align-items:center;">
+                <span class="chip chip--bordered" style="background: var(--color-bg); width:56px; height:56px;"></span>
+                <span><span class="t-body-strong">Background</span><br/><span class="t-mono" style="color: var(--color-text-muted);">#FFFFFF</span></span>
+              </div>
+              <div style="display:flex; gap: var(--space-3); align-items:center;">
+                <span class="chip" style="background: var(--color-text-primary); width:56px; height:56px;"></span>
+                <span><span class="t-body-strong">Text — primary</span><br/><span class="t-mono" style="color: var(--color-text-muted);">#161616</span></span>
+              </div>
+              <div style="display:flex; gap: var(--space-3); align-items:center;">
+                <span class="chip" style="background: var(--color-text-muted); width:56px; height:56px;"></span>
+                <span><span class="t-body-strong">Muted / footnote</span><br/><span class="t-mono" style="color: var(--color-text-muted);">#808080</span></span>
+              </div>
+            </div>
+          </div>
+          <div style="flex: 1 1 auto;">
+            <p class="t-mono" style="color: var(--color-text-muted); text-transform: uppercase; letter-spacing: var(--tracking-wide); margin: 0 0 var(--space-2);">Bright accents</p>
+            <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-3); margin-bottom: var(--space-5);">
+              <div><span class="chip" style="background:#694BFB"></span><div class="t-caption" style="color:var(--color-text-primary);">Purple<br/><span style="font-family:var(--font-mono); color: var(--color-text-muted);">694BFB</span></div></div>
+              <div><span class="chip" style="background:#FF5401"></span><div class="t-caption" style="color:var(--color-text-primary);">Orange<br/><span style="font-family:var(--font-mono); color: var(--color-text-muted);">FF5401</span></div></div>
+              <div><span class="chip" style="background:#94E4CC"></span><div class="t-caption" style="color:var(--color-text-primary);">Mint<br/><span style="font-family:var(--font-mono); color: var(--color-text-muted);">94E4CC</span></div></div>
+              <div><span class="chip" style="background:#FFE146"></span><div class="t-caption" style="color:var(--color-text-primary);">Yellow<br/><span style="font-family:var(--font-mono); color: var(--color-text-muted);">FFE146</span></div></div>
+              <div><span class="chip" style="background:#428EFF"></span><div class="t-caption" style="color:var(--color-text-primary);">Blue<br/><span style="font-family:var(--font-mono); color: var(--color-text-muted);">428EFF</span></div></div>
+              <div><span class="chip" style="background:#FF81EF"></span><div class="t-caption" style="color:var(--color-text-primary);">Pink<br/><span style="font-family:var(--font-mono); color: var(--color-text-muted);">FF81EF</span></div></div>
+            </div>
+            <p class="t-mono" style="color: var(--color-text-muted); text-transform: uppercase; letter-spacing: var(--tracking-wide); margin: 0 0 var(--space-2);">Pastel accents</p>
+            <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-3);">
+              <div><span class="chip" style="background:#B8B8FF"></span><div class="t-caption" style="color:var(--color-text-primary);">Purple<br/><span style="font-family:var(--font-mono); color: var(--color-text-muted);">B8B8FF</span></div></div>
+              <div><span class="chip" style="background:#FFC2A5"></span><div class="t-caption" style="color:var(--color-text-primary);">Peach<br/><span style="font-family:var(--font-mono); color: var(--color-text-muted);">FFC2A5</span></div></div>
+              <div><span class="chip" style="background:#D2FCEE"></span><div class="t-caption" style="color:var(--color-text-primary);">Mint<br/><span style="font-family:var(--font-mono); color: var(--color-text-muted);">D2FCEE</span></div></div>
+              <div><span class="chip" style="background:#FFF3B5"></span><div class="t-caption" style="color:var(--color-text-primary);">Yellow<br/><span style="font-family:var(--font-mono); color: var(--color-text-muted);">FFF3B5</span></div></div>
+              <div><span class="chip" style="background:#FFCCF9"></span><div class="t-caption" style="color:var(--color-text-primary);">Pink<br/><span style="font-family:var(--font-mono); color: var(--color-text-muted);">FFCCF9</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="slide__page-num">05</div>
+      </section>
+    </div>
+  </div>
+
+  <nav class="deck__nav" aria-label="Slide navigation">
+    <button id="prev" type="button" aria-label="Previous slide">&larr;</button>
+    <span class="deck__counter"><span id="cur">1</span> / <span id="tot">5</span></span>
+    <button id="next" type="button" aria-label="Next slide">&rarr;</button>
+  </nav>
+
+  <script>
+    (function () {
+      const slides = Array.from(document.querySelectorAll('#deck > .slide'));
+      const cur = document.getElementById('cur');
+      const tot = document.getElementById('tot');
+      let i = 0;
+      tot.textContent = slides.length;
+
+      function go(n) {
+        i = Math.max(0, Math.min(slides.length - 1, n));
+        slides.forEach((s, idx) => s.classList.toggle('is-active', idx === i));
+        cur.textContent = i + 1;
+      }
+      document.getElementById('next').addEventListener('click', () => go(i + 1));
+      document.getElementById('prev').addEventListener('click', () => go(i - 1));
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(i + 1); }
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); go(i - 1); }
+        if (e.key === 'Home')       { e.preventDefault(); go(0); }
+        if (e.key === 'End')        { e.preventDefault(); go(slides.length - 1); }
+      });
+    })();
+  </script>
+</body>
+</html>

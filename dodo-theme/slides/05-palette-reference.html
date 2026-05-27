@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Color reference — Dodo theme</title>
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/slide.css" />
+  <style>
+    .palette { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-4); margin-top: var(--space-3); }
+    .palette__item { display: flex; flex-direction: column; gap: var(--space-2); align-items: flex-start; }
+    .palette__item .chip { width: 64px; height: 64px; }
+    .palette__name { font-size: var(--size-caption); font-weight: var(--weight-regular); }
+    .palette__hex  { font-family: var(--font-mono); font-size: var(--size-caption); color: var(--color-text-muted); }
+    .palette__section { font-family: var(--font-mono); font-size: var(--size-caption); color: var(--color-text-muted);
+                        text-transform: uppercase; letter-spacing: var(--tracking-wide); margin: var(--space-6) 0 var(--space-2); }
+  </style>
+</head>
+<body>
+  <div class="slide-stage">
+    <section class="slide slide--content" data-layout="palette-reference" data-slide="5">
+      <h3 class="slide__title">Brand colors — quick reference</h3>
+
+      <div style="display: flex; gap: var(--space-12);">
+        <!-- Neutrals column -->
+        <div style="flex: 0 0 30%;">
+          <p class="palette__section" style="margin-top:0;">Neutrals</p>
+          <div style="display:flex; flex-direction:column; gap: var(--space-3);">
+            <div style="display:flex; gap: var(--space-3); align-items:center;">
+              <span class="chip chip--bordered" style="background: var(--color-bg);"></span>
+              <span><span class="t-body-strong">Background</span><br/><span class="palette__hex">#FFFFFF</span></span>
+            </div>
+            <div style="display:flex; gap: var(--space-3); align-items:center;">
+              <span class="chip" style="background: var(--color-text-primary);"></span>
+              <span><span class="t-body-strong">Text — primary</span><br/><span class="palette__hex">#161616</span></span>
+            </div>
+            <div style="display:flex; gap: var(--space-3); align-items:center;">
+              <span class="chip" style="background: var(--color-text-muted);"></span>
+              <span><span class="t-body-strong">Muted / footnote</span><br/><span class="palette__hex">#808080</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accents column -->
+        <div style="flex: 1 1 auto;">
+          <p class="palette__section" style="margin-top:0;">Bright accents</p>
+          <div class="palette" style="grid-template-columns: repeat(6, 1fr);">
+            <div class="palette__item"><span class="chip" style="background:#694BFB"></span><span class="palette__name">Purple</span><span class="palette__hex">694BFB</span></div>
+            <div class="palette__item"><span class="chip" style="background:#FF5401"></span><span class="palette__name">Orange</span><span class="palette__hex">FF5401</span></div>
+            <div class="palette__item"><span class="chip" style="background:#94E4CC"></span><span class="palette__name">Mint</span><span class="palette__hex">94E4CC</span></div>
+            <div class="palette__item"><span class="chip" style="background:#FFE146"></span><span class="palette__name">Yellow</span><span class="palette__hex">FFE146</span></div>
+            <div class="palette__item"><span class="chip" style="background:#428EFF"></span><span class="palette__name">Blue</span><span class="palette__hex">428EFF</span></div>
+            <div class="palette__item"><span class="chip" style="background:#FF81EF"></span><span class="palette__name">Pink</span><span class="palette__hex">FF81EF</span></div>
+          </div>
+
+          <p class="palette__section">Pastel accents</p>
+          <div class="palette" style="grid-template-columns: repeat(5, 1fr);">
+            <div class="palette__item"><span class="chip" style="background:#B8B8FF"></span><span class="palette__name">Purple</span><span class="palette__hex">B8B8FF</span></div>
+            <div class="palette__item"><span class="chip" style="background:#FFC2A5"></span><span class="palette__name">Peach</span><span class="palette__hex">FFC2A5</span></div>
+            <div class="palette__item"><span class="chip" style="background:#D2FCEE"></span><span class="palette__name">Mint</span><span class="palette__hex">D2FCEE</span></div>
+            <div class="palette__item"><span class="chip" style="background:#FFF3B5"></span><span class="palette__name">Yellow</span><span class="palette__hex">FFF3B5</span></div>
+            <div class="palette__item"><span class="chip" style="background:#FFCCF9"></span><span class="palette__name">Pink</span><span class="palette__hex">FFCCF9</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide__page-num">05</div>
+    </section>
+  </div>
+</body>
+</html>

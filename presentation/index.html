@@ -1,0 +1,1487 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KMP without rewriting the app — Max Kachinkin · Dodo Engineering</title>
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/slide.css" />
+  <link rel="stylesheet" href="css/deck.css" />
+</head>
+<body>
+  <div class="stage" id="stage">
+    <div class="deck" id="deck">
+
+      <!-- ============================================================
+           PART 0 — OPENER  (slides 1–6)
+           ============================================================ -->
+
+      <!-- 1 · TITLE · Cover -->
+      <section class="slide slide--cover">
+        <div class="cover__brand">Bereke Android Meetup &middot; GDG Almaty &middot; 28 May 2026</div>
+        <h1 class="slide__big-title">KMP without<br/><em>rewriting</em> the app.</h1>
+        <p class="slide__big-subtitle">Max Kachinkin · Tech &amp; Team Lead, Drinkit Mobile</p>
+      </section>
+
+      <!-- 2 · IMAGE · About me -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">About me</h3>
+        <div class="slide__body" style="display:grid; grid-template-columns: 1fr 1.5fr; gap: 64px; align-items: center; height: 78%;">
+          <img src="assets/portrait.jpg"
+               alt="Max Kachinkin"
+               class="anim-fade"
+               style="aspect-ratio: 1/1; width: 100%; border-radius: 24px; object-fit: cover; box-shadow: var(--shadow-md);">
+          <div class="stagger">
+            <p class="t-cover" style="margin:0 0 8pt;">Max Kachinkin</p>
+            <p class="t-h3" style="margin:0 0 4pt; color:var(--color-text-secondary); font-weight: var(--weight-light);">Tech lead &amp; Team lead · Drinkit Mobile</p>
+            <p class="t-mono" style="margin:0 0 16pt; color: var(--color-accent-purple); font-size: 12pt; text-transform: uppercase; letter-spacing: 0.06em;">// Dodo Engineering</p>
+            <ul class="list" style="font-size: 14pt; line-height: 1.55; margin: 0; padding-left: 18pt;">
+              <li>Android Tech Lead — 15 years of experience</li>
+              <li>Program Director, <em>Podlodka Android Crew</em></li>
+              <li>Course Lead, <em>Android Developer Professional</em> @ Otus</li>
+              <li>Telegram channel <em>Mobile Fiction</em> · <span class="t-mono" style="color: var(--color-accent-purple);">@mobilefiction</span></li>
+              <li>Writes on Habr / Medium</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3 · IMAGE · Dodo Engineering — by the numbers -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Dodo Engineering</h3>
+        <div class="slide__body" style="display:flex; flex-direction:column; justify-content:center; gap: 40px; height: 82%;">
+          <p class="t-cover-l anim-fade" style="margin:0; color: var(--color-accent-purple);">By the numbers.</p>
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 56px; align-items: end;">
+            <div class="anim-rise">
+              <p style="font-family: var(--font-display-light); font-size: 96pt; line-height: 1; margin: 0; letter-spacing: -0.02em;">63k</p>
+              <p class="t-h3" style="margin: 8pt 0 0; font-weight: var(--weight-light); color: var(--color-text-secondary);">employees</p>
+            </div>
+            <div class="anim-rise-2">
+              <p style="font-family: var(--font-display-light); font-size: 96pt; line-height: 1; margin: 0; letter-spacing: -0.02em;">365</p>
+              <p class="t-h3" style="margin: 8pt 0 0; font-weight: var(--weight-light); color: var(--color-text-secondary);">in tech</p>
+            </div>
+            <div class="anim-rise-3">
+              <p style="font-family: var(--font-display-light); font-size: 96pt; line-height: 1; margin: 0; letter-spacing: -0.02em;">26</p>
+              <p class="t-h3" style="margin: 8pt 0 0; font-weight: var(--weight-light); color: var(--color-text-secondary);">countries</p>
+            </div>
+          </div>
+        </div>
+        <div aria-hidden="true" style="position:absolute; right: var(--space-12, 48px); bottom: var(--space-10, 40px); display:flex; gap: var(--space-3, 12px); align-items:center;">
+          <img src="assets/pizza.jpg" alt="Dodo Pizza app icon" class="anim-fade" style="width: 88px; height: 88px; border-radius: 22%; object-fit: cover; box-shadow: var(--shadow-md);">
+          <img src="assets/drinkit.png" alt="Drinkit app icon" class="anim-fade" style="width: 88px; height: 88px; border-radius: 22%; object-fit: cover; box-shadow: var(--shadow-md);">
+        </div>
+      </section>
+
+      <!-- 4 · IMAGE · What Drinkit is -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">What Drinkit is</h3>
+        <div class="slide__body" style="display:grid; grid-template-columns: 1.2fr 1fr; gap: 56px; align-items: center; height: 78%;">
+          <div class="anim-from-left">
+            <div style="display:flex; align-items:center; gap: 20px;">
+              <img src="assets/app_icon.webp"
+                   alt="Drinkit app icon"
+                   style="width: 72px; height: 72px; border-radius: 16px; box-shadow: var(--shadow-sm);">
+              <p class="t-cover-l" style="margin:0;">Drinkit.</p>
+            </div>
+            <p class="t-h2" style="margin: 16pt 0 0; font-weight: var(--weight-light); color: var(--color-text-secondary);">Specialty coffee from Dodo Brands.</p>
+            <p class="t-mono" style="margin-top: 32pt; color: var(--color-text-muted);">// When I say "the app", this is the one.</p>
+          </div>
+          <div class="phone phone--real anim-from-right" style="margin-left:auto;">
+            <div class="phone__screen">
+              <img src="assets/screens/home-android.png"
+                   alt="Drinkit Android home"
+                   class="phone__shot">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5 · BULLETS · Today's promise -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Today</h3>
+        <div class="slide__body">
+          <ul class="list list--lg stagger">
+            <li>A real story, not a sales pitch.</li>
+            <li>2 production apps · iOS + Android · legacy code.</li>
+            <li>How we started using KMP <strong>without rewriting anything</strong>.</li>
+            <li>Honest results — what worked, what didn't.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 6 · BIG-WORD · Best question wins a prize -->
+      <section class="slide slide--bigword">
+        <span aria-hidden="true" style="position:absolute; left:11%; bottom:18%; width:84px; height:84px; border-radius:50%; background: radial-gradient(circle at 30% 30%, var(--color-accent-pink), var(--color-pastel-pink) 70%); box-shadow: var(--shadow-sm);"></span>
+        <span aria-hidden="true" style="position:absolute; left:34%; bottom:11%; width:72px; height:72px; border-radius:50%; background: radial-gradient(circle at 30% 30%, var(--color-accent-mint), var(--color-pastel-mint) 70%); box-shadow: var(--shadow-sm);"></span>
+        <span aria-hidden="true" style="position:absolute; right:34%; bottom:20%; width:68px; height:68px; border-radius:50%; background: radial-gradient(circle at 30% 30%, var(--color-accent-yellow), var(--color-pastel-yellow) 70%); box-shadow: var(--shadow-sm);"></span>
+        <span aria-hidden="true" style="position:absolute; right:12%; bottom:13%; width:88px; height:88px; border-radius:50%; background: radial-gradient(circle at 30% 30%, var(--color-accent-orange), var(--color-pastel-peach) 70%); box-shadow: var(--shadow-sm);"></span>
+        <div class="bw bw--md">
+          Best question wins a <span class="bw--accent">prize</span>. 🎁
+        </div>
+      </section>
+
+      <!-- ============================================================
+           PART 1 — Do you also have two different apps?
+           ============================================================ -->
+
+      <!-- 7 · BIG-WORD · Section title -->
+      <section class="slide slide--section bg-bloom bloom--purple">
+        <p class="slide__section-eyebrow">// part 01</p>
+        <h2 class="slide__section-title">Do you also have<br/>two different apps?</h2>
+        <div class="slide__section-rule"></div>
+      </section>
+
+      <!-- 8 · IMAGE · Side-by-side comparison — home -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Side by side · home</h3>
+        <div class="slide__body">
+          <div class="phones-hero">
+            <div class="phone phone--real anim-from-left">
+              <div class="phone__label">iOS</div>
+              <div class="phone__screen">
+                <img src="assets/screens/home-ios.png" alt="Drinkit iOS home" class="phone__shot">
+              </div>
+            </div>
+            <div class="phone phone--real anim-from-right">
+              <div class="phone__label">Android</div>
+              <div class="phone__screen">
+                <img src="assets/screens/home-android.png" alt="Drinkit Android home" class="phone__shot">
+              </div>
+            </div>
+          </div>
+          <p class="t-caption" style="text-align:center; margin-top: var(--space-4);">"Spot the difference."</p>
+        </div>
+      </section>
+
+      <!-- 9 · IMAGE · Side-by-side — menu screen -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Side by side · menu</h3>
+        <div class="slide__body">
+          <div class="phones-hero">
+            <div class="phone phone--real"><div class="phone__label">iOS</div>
+              <div class="phone__screen">
+                <img src="assets/screens/menu-ios.png" alt="Drinkit iOS menu" class="phone__shot">
+              </div>
+            </div>
+            <div class="phone phone--real"><div class="phone__label">Android</div>
+              <div class="phone__screen">
+                <img src="assets/screens/menu-android.png" alt="Drinkit Android menu" class="phone__shot">
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10 · IMAGE · Side-by-side — product customization -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Side by side · customisation</h3>
+        <div class="slide__body">
+          <div class="phones-hero">
+            <div class="phone phone--real"><div class="phone__label">iOS</div>
+              <div class="phone__screen">
+                <img src="assets/screens/customisation-ios.png" alt="Drinkit iOS customisation" class="phone__shot">
+              </div>
+            </div>
+            <div class="phone phone--real"><div class="phone__label">Android</div>
+              <div class="phone__screen">
+                <img src="assets/screens/customisation-android.png" alt="Drinkit Android customisation" class="phone__shot">
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11 · IMAGE · Side-by-side — cart / checkout -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Side by side · cart</h3>
+        <div class="slide__body">
+          <div class="phones-hero">
+            <div class="phone phone--real"><div class="phone__label">iOS</div>
+              <div class="phone__screen">
+                <img src="assets/screens/cart-ios.png" alt="Drinkit iOS cart" class="phone__shot">
+              </div>
+            </div>
+            <div class="phone phone--real"><div class="phone__label">Android</div>
+              <div class="phone__screen">
+                <img src="assets/screens/cart-android.png" alt="Drinkit Android cart" class="phone__shot">
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 12 · BIG-WORD · The trap -->
+      <section class="slide slide--bigword">
+        <div class="bw">Same outside.</div>
+      </section>
+
+      <!-- 13 · BIG-WORD · The trap, part 2 -->
+      <section class="slide slide--bigword">
+        <div class="bw">Two different worlds <span class="bw--orange">inside</span>.</div>
+      </section>
+
+      <!-- 14 · DIAGRAM · Two architectures — silhouettes only -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Two architectures</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/two-architectures-detailed.png"
+               alt="Android per-feature module stack vs iOS layered architecture"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- ============================================================
+           PART 2 — Why our client got thick  (15–19)
+           ============================================================ -->
+
+      <!-- 15 · BIG-WORD · Section title -->
+      <section class="slide slide--section bg-bloom bloom--orange">
+        <p class="slide__section-eyebrow">// part 02</p>
+        <h2 class="slide__section-title">Why our client<br/>got thick.</h2>
+        <div class="slide__section-rule"></div>
+      </section>
+
+      <!-- 16 · IMAGE · Menu — five-video tile (full bleed) -->
+      <section class="slide slide--bleed">
+        <div class="video-tile">
+          <video src="assets/media/menu-1.webm" autoplay loop muted playsinline></video>
+          <video src="assets/media/menu-2.webm" autoplay loop muted playsinline></video>
+          <video src="assets/media/menu-3.webm" autoplay loop muted playsinline></video>
+          <video src="assets/media/menu-4.webm" autoplay loop muted playsinline></video>
+          <video src="assets/media/menu-5.webm" autoplay loop muted playsinline></video>
+        </div>
+      </section>
+
+      <!-- 17 · IMAGE · Animated transition (video) -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Native feel · shared-element transitions</h3>
+        <div class="slide__body" style="display:grid; grid-template-columns: 1.2fr 1fr; gap: 56px; align-items: center; height: 82%;">
+          <ul class="list list--lg stagger">
+            <li>Card → detail morphs natively.</li>
+            <li>Physics-driven, finger-responsive.</li>
+            <li>Hard to do with thin / BDUI clients.</li>
+            <li>Part of the brand.</li>
+          </ul>
+          <div class="phone phone--real anim-fade" style="margin: 0 auto;">
+            <div class="phone__screen">
+              <video src="assets/media/combo-transition.webm"
+                     autoplay loop muted playsinline
+                     class="phone__shot"></video>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 18 · BIG-WORD · The choice -->
+      <section class="slide slide--bigword">
+        <div class="bw">Thick client.<br/><span class="bw--accent">On purpose.</span></div>
+      </section>
+
+      <!-- 19 · TRANSITION -->
+      <section class="slide slide--bigword slide--transition">
+        <div class="bw">…and this is where<br/>it starts to <span class="bw--orange">hurt</span>.</div>
+      </section>
+
+
+
+      <!-- ============================================================
+           PART 3 — We write the same thing twice  (20–31)
+           ============================================================ -->
+
+      <!-- 20 · BIG-WORD · Section title -->
+      <section class="slide slide--section bg-bloom bloom--blue">
+        <p class="slide__section-eyebrow">// part 03</p>
+        <h2 class="slide__section-title">We write the same thing<br/>twice.</h2>
+        <div class="slide__section-rule"></div>
+      </section>
+
+      <!-- 21 · BIG-WORD -->
+      <section class="slide slide--bigword"><div class="bw bw--md">Almost the same.</div></section>
+
+      <!-- 22 · BIG-WORD -->
+      <section class="slide slide--bigword"><div class="bw bw--md">Not <span class="bw--orange">exactly</span> the same.</div></section>
+
+      <!-- 23 · IMAGE · Customer feedback (combo) -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Customer feedback</h3>
+        <div class="slide__body" style="display:flex; align-items:center; justify-content:center; height: 80%;">
+          <div class="anim-rise" style="max-width: 760px; background: var(--color-bg-subtle); border-radius: 16px; padding: 28px; box-shadow: var(--shadow-md);">
+            <div style="display:flex; align-items:center; gap: 12px; margin-bottom: 16px;">
+              <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--color-accent-orange);"></div>
+              <div>
+                <p class="t-body-strong" style="margin:0; font-size: 14pt;">customer · #drinkit-feedback</p>
+                <p class="t-caption" style="margin:0;">today, 14:32</p>
+              </div>
+            </div>
+            <p class="t-h3" style="margin:0; font-weight: var(--weight-light); line-height: 1.3;">
+              «А почему у моей подруги комбо доступно,<br/>
+              а у меня на айфоне нет? Что за несправедливость?!»
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 24 · BIG-WORD -->
+      <section class="slide slide--bigword"><div class="bw">Is this a bug?</div></section>
+
+      <!-- 25 · BIG-WORD -->
+      <section class="slide slide--bigword"><div class="bw bw--md">No source of truth.</div></section>
+
+      <!-- 26 · COMPARE · A real combo rule — implemented twice (clean) -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">A real combo rule — implemented twice.</h3>
+        <div class="slide__body" style="display:flex; flex-direction:column; gap: 10px; height: 86%;">
+          <div class="anim-from-left">
+            <p class="t-mono-bold" style="color: var(--color-accent-orange); margin: 0 0 4px; font-size: 11pt;">// android — Kotlin (live)</p>
+<pre class="code-block" style="font-size: 11pt; line-height: 1.35; padding: 10px 16px; margin: 0;"><span class="tok-k">fun</span> <span class="tok-n">pickSlotProduct</span>(slot: <span class="tok-t">Slot</span>, alreadyPicked: <span class="tok-t">Set</span>&lt;<span class="tok-t">String</span>&gt;): <span class="tok-t">String</span> {
+    <span class="tok-k">val</span> default = slot.products.<span class="tok-n">firstOrNull</span> { it.<span class="tok-a">id</span> == slot.<span class="tok-a">defaultProductId</span> }
+    <span class="tok-k">if</span> (default != <span class="tok-k">null</span> &amp;&amp; !default.<span class="tok-a">isInStop</span> &amp;&amp; default.<span class="tok-a">id</span> !<span class="tok-k">in</span> alreadyPicked) <span class="tok-k">return</span> default.<span class="tok-a">id</span>
+    <span class="tok-k">val</span> fresh = slot.products.<span class="tok-n">firstOrNull</span> { !it.<span class="tok-a">isInStop</span> &amp;&amp; it.<span class="tok-a">id</span> !<span class="tok-k">in</span> alreadyPicked }
+    <span class="tok-k">if</span> (fresh != <span class="tok-k">null</span>) <span class="tok-k">return</span> fresh.<span class="tok-a">id</span>
+    <span class="tok-k">return</span> slot.products.<span class="tok-n">firstOrNull</span> { !it.<span class="tok-a">isInStop</span> }?.<span class="tok-a">id</span> ?: slot.products.<span class="tok-n">first</span>().<span class="tok-a">id</span>
+}</pre>
+          </div>
+          <div class="anim-from-right">
+            <p class="t-mono-bold" style="color: var(--color-accent-purple); margin: 0 0 4px; font-size: 11pt;">// ios — Swift (also live)</p>
+<pre class="code-block" style="font-size: 11pt; line-height: 1.35; padding: 10px 16px; margin: 0;"><span class="tok-k">func</span> <span class="tok-n">pickSlotProduct</span>(slot: <span class="tok-t">Slot</span>, alreadyPicked: <span class="tok-t">Set</span>&lt;<span class="tok-t">String</span>&gt;) -&gt; <span class="tok-t">String</span> {
+    <span class="tok-k">if let</span> d = slot.products.<span class="tok-n">first</span>(where: { $0.<span class="tok-a">id</span> == slot.<span class="tok-a">defaultProductId</span> }),
+       !d.<span class="tok-a">isInStop</span> {
+        <span class="tok-k">return</span> d.<span class="tok-a">id</span>
+    }
+    <span class="tok-k">if let</span> fresh = slot.products.<span class="tok-n">first</span>(where: { !$0.<span class="tok-a">isInStop</span> }) {
+        <span class="tok-k">return</span> fresh.<span class="tok-a">id</span>
+    }
+    <span class="tok-k">return</span> slot.products.<span class="tok-n">first</span>!.<span class="tok-a">id</span>
+}</pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- 27 · COMPARE · A real combo rule — bug highlighted -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">A real combo rule — spot the bug.</h3>
+        <div class="slide__body" style="display:flex; flex-direction:column; gap: 10px; height: 86%;">
+          <div>
+            <p class="t-mono-bold" style="color: var(--color-accent-orange); margin: 0 0 4px; font-size: 11pt;">// android — Kotlin (live)</p>
+<pre class="code-block" style="font-size: 11pt; line-height: 1.35; padding: 10px 16px; margin: 0;"><span class="tok-k">fun</span> <span class="tok-n">pickSlotProduct</span>(slot: <span class="tok-t">Slot</span>, alreadyPicked: <span class="tok-t">Set</span>&lt;<span class="tok-t">String</span>&gt;): <span class="tok-t">String</span> {
+    <span class="tok-k">val</span> default = slot.products.<span class="tok-n">firstOrNull</span> { it.<span class="tok-a">id</span> == slot.<span class="tok-a">defaultProductId</span> }
+    <span class="tok-k">if</span> (default != <span class="tok-k">null</span> &amp;&amp; !default.<span class="tok-a">isInStop</span> &amp;&amp; <span class="hl-bug">default.<span class="tok-a">id</span> !<span class="tok-k">in</span> alreadyPicked</span>) <span class="tok-k">return</span> default.<span class="tok-a">id</span>
+    <span class="tok-k">val</span> fresh = slot.products.<span class="tok-n">firstOrNull</span> { !it.<span class="tok-a">isInStop</span> &amp;&amp; <span class="hl-bug">it.<span class="tok-a">id</span> !<span class="tok-k">in</span> alreadyPicked</span> }
+    <span class="tok-k">if</span> (fresh != <span class="tok-k">null</span>) <span class="tok-k">return</span> fresh.<span class="tok-a">id</span>
+    <span class="tok-k">return</span> slot.products.<span class="tok-n">firstOrNull</span> { !it.<span class="tok-a">isInStop</span> }?.<span class="tok-a">id</span> ?: slot.products.<span class="tok-n">first</span>().<span class="tok-a">id</span>
+}</pre>
+          </div>
+          <div>
+            <p class="t-mono-bold" style="color: var(--color-accent-purple); margin: 0 0 4px; font-size: 11pt;">// ios — Swift (also live)<span style="color: var(--color-accent-orange); margin-left: 16px;">missing both dedup checks ↓</span></p>
+<pre class="code-block" style="font-size: 11pt; line-height: 1.35; padding: 10px 16px; margin: 0;"><span class="tok-k">func</span> <span class="tok-n">pickSlotProduct</span>(slot: <span class="tok-t">Slot</span>, alreadyPicked: <span class="tok-t">Set</span>&lt;<span class="tok-t">String</span>&gt;) -&gt; <span class="tok-t">String</span> {
+    <span class="tok-k">if let</span> d = slot.products.<span class="tok-n">first</span>(where: { $0.<span class="tok-a">id</span> == slot.<span class="tok-a">defaultProductId</span> }),
+       !d.<span class="tok-a">isInStop</span> <span class="hl-bug">/* no `!alreadyPicked.contains(d.id)` */</span> {
+        <span class="tok-k">return</span> d.<span class="tok-a">id</span>
+    }
+    <span class="tok-k">if let</span> fresh = slot.products.<span class="tok-n">first</span>(where: { !$0.<span class="tok-a">isInStop</span> <span class="hl-bug">/* no dedup */</span> }) {
+        <span class="tok-k">return</span> fresh.<span class="tok-a">id</span>
+    }
+    <span class="tok-k">return</span> slot.products.<span class="tok-n">first</span>!.<span class="tok-a">id</span>
+}</pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- 28 · BULLETS · What we tried — docs -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">What we tried first</h3>
+        <div class="slide__body">
+          <ul class="list list--lg stagger">
+            <li>Shared product specs.</li>
+            <li>Shared decision docs.</li>
+            <li>A "single source of truth" doc folder.</li>
+            <li>Updated religiously last year.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 29 · BIG-WORD -->
+      <section class="slide slide--bigword"><div class="bw">It didn't save us.</div></section>
+
+      <!-- 30 · BULLETS · Why docs aren't enough -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Why docs aren't enough</h3>
+        <div class="slide__body">
+          <ul class="list list--lg stagger">
+            <li>Docs drift from code.</li>
+            <li>Edge cases live in code, not in prose.</li>
+            <li>No CI for "the doc and the code agree".</li>
+            <li>Two engineers ≠ one mental model.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 31 · TRANSITION -->
+      <section class="slide slide--bigword slide--transition">
+        <div class="bw">There must be a<br/>better way…</div>
+      </section>
+
+      <!-- ============================================================
+           PART 4 — KMP — just start, right?  (32–47)
+           ============================================================ -->
+
+      <!-- 32 · BIG-WORD · Section title -->
+      <section class="slide slide--section bg-bloom bloom--mint">
+        <p class="slide__section-eyebrow">// part 04</p>
+        <h2 class="slide__section-title">KMP —<br/>just start, right?</h2>
+        <div class="slide__section-rule"></div>
+      </section>
+
+      <!-- 33 · IMAGE · Tutorial promise -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Every tutorial makes it look easy</h3>
+        <div class="slide__body" style="display:flex; align-items:center; justify-content:center; height:80%;">
+          <div class="anim-rise" style="width: 760px; background: var(--color-bg); border: 1px solid var(--color-border-on-white); border-radius: 12px; padding: 32px; box-shadow: var(--shadow-md);">
+            <p class="t-mono" style="color: var(--color-text-muted); margin:0 0 8px;">kotlinlang.org / getting-started</p>
+            <h4 class="t-h2" style="margin:0 0 16px;">Kotlin Multiplatform · Hello, world</h4>
+            <p class="t-body" style="font-size: 14pt; margin: 0 0 16px;">Write once, run on Android &amp; iOS. Share business logic, keep UI native.</p>
+<pre class="code-block"><span class="tok-c">// commonMain</span>
+<span class="tok-k">fun</span> <span class="tok-n">greet</span>() = <span class="tok-s">"Hello, multiplatform!"</span></pre>
+            <p class="t-caption" style="margin-top: 12px;">Step 1 · New project &nbsp;·&nbsp; Step 2 · Add shared module &nbsp;·&nbsp; Step 3 · Done.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 34 · DIAGRAM · Greenfield KMP — the dream -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Greenfield · the dream</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/green-field.png"
+               alt="Greenfield KMP layout: androidApp (Compose) and iosApp (SwiftUI) both depending on a shared KMP module with androidMain, iosMain, and commonMain"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- 35 · BIG-WORD -->
+      <section class="slide slide--bigword"><div class="bw">We are <span class="bw--orange">not</span> greenfield.</div></section>
+
+      <!-- 36 · DIAGRAM · Android vs iOS module graph -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Same product. Different geometry.</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/ios-android-modules.png"
+               alt="Android per-feature modules vs iOS layered architecture"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- 37 · BIG-WORD -->
+      <section class="slide slide--bigword"><div class="bw bw--md">Network · <span class="bw--accent">auto-generated</span>.</div></section>
+
+      <!-- 38 · CODE · Android Retrofit -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Android · Retrofit + codegen from OpenAPI</h3>
+        <div class="slide__body">
+          <p class="code-caption">android-app-sampels/aisuggestions/domain-impl/.../DrinkitLabApi.kt</p>
+<pre class="code-block"><span class="tok-k">interface</span> <span class="tok-t">DrinkitLabApi</span> {
+    <span class="tok-c">@GET("api/v1/GetDrinkitLab")</span>
+    <span class="tok-k">suspend fun</span> <span class="tok-n">getDrinkitLab</span>(
+        <span class="tok-c">@Query("countryId")</span> countryId: <span class="tok-t">Int</span>,
+        <span class="tok-c">@Query("unitId")</span>   unitId: <span class="tok-t">String</span>,
+    ): <span class="tok-t">DrinkitLabDto</span>
+}</pre>
+          <p class="code-caption-bottom">Source of truth: generated Kotlin · committed to repo.</p>
+        </div>
+      </section>
+
+      <!-- 39 · CODE · iOS OpenAPI generator -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">iOS · Apple's OpenAPI Generator</h3>
+        <div class="slide__body">
+          <p class="code-caption">ios-app-samples/DrinkitLab-domain/DrinkitLabService.swift</p>
+<pre class="code-block"><span class="tok-k">func</span> <span class="tok-n">getDrinkitLab</span>(unitId: <span class="tok-t">String</span>)
+    <span class="tok-k">async throws</span> -&gt; <span class="tok-t">DTO.DrinkitLab_DrinkitLabDto</span>
+{
+    <span class="tok-k">try await</span> <span class="tok-n">makeNetworkRequest</span> {
+        <span class="tok-k">try await</span> api.authorized.<span class="tok-n">getApiV1GetDrinkitLab</span>(
+            query: .<span class="tok-n">init</span>(unitId: unitId)
+        )
+    } mapResponse: { response <span class="tok-k">in</span>
+        <span class="tok-k">try</span> response.ok.body.json
+    }
+}</pre>
+          <p class="code-caption-bottom">Source of truth: JSON spec · Swift regenerated on every build.</p>
+          <p class="t-caption" style="margin-top: 12px;">Different types. Different middleware. Different cancellation model.</p>
+        </div>
+      </section>
+
+      <!-- 40 · COMPARE · Different source of truth -->
+      <section class="slide slide--two-col">
+        <h3 class="slide__title">Different source of truth</h3>
+        <div class="slide__columns">
+          <div class="slide__col anim-from-left">
+            <p class="t-mono-bold" style="color: var(--color-accent-orange);">// android</p>
+            <h4 class="t-h4">Generated Kotlin <em>is</em> the contract.</h4>
+            <ul class="list">
+              <li>Committed to the repo.</li>
+              <li>Diff-able.</li>
+              <li>Code-reviewed.</li>
+            </ul>
+          </div>
+          <div class="slide__col anim-from-right">
+            <p class="t-mono-bold" style="color: var(--color-accent-purple);">// ios</p>
+            <h4 class="t-h4">JSON <em>is</em> the contract.</h4>
+            <ul class="list">
+              <li>Swift built fresh each time.</li>
+              <li>No DTO in the repo.</li>
+              <li>Generator output is ephemeral.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 41 · BIG-WORD -->
+      <section class="slide slide--bigword"><div class="bw bw--md">Cache &amp; offline —<br/>different too.</div></section>
+
+      <!-- 42 · BIG-WORD -->
+      <section class="slide slide--bigword"><div class="bw">Where do you <span class="bw--orange">start</span>?</div></section>
+
+      <!-- 43 · DIAGRAM · Option 1 — data + domain together -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Option 1 — data + domain together</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/bad-try-data-and-domain.png"
+               alt="Highlighted Android domain-impl/data and iOS domain/data — different shapes, can't merge"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- 44 · DIAGRAM · Option 2 — data only -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Option 2 — data only</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/bad-try-data-only.png"
+               alt="Highlighted Android data per feature and iOS generated data — still different shapes"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- 45 · DIAGRAM · Option 3 — one full feature -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Option 3 — one full feature</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/bad-try-one-full-feature.png"
+               alt="One full Android feature stack lifted into KMP — pulls the data layer with it"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- 46 · DIAGRAM · Option 4 — Android style on iOS -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Option 4 — bend iOS to Android style</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/bad-try-android-style-on-ios.png"
+               alt="iOS architecture replaced with per-feature modules — year of churn, no user value"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- 47 · DIAGRAM · Option 5 — take infra -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Option 5 — take infra (logs, analytics, …)</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/bad-try-take-infra.png"
+               alt="Highlighted cross-cutting infra (logs, analytics, etc.) — designed differently on each platform"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- ============================================================
+           PART 5 — Start with what's already shared  (48–58)
+           ============================================================ -->
+
+      <!-- 48 · SECTION · 5 · Start with what's already shared. -->
+      <section class="slide slide--section bg-bloom bloom--purple">
+        <p class="slide__section-eyebrow">// part 05</p>
+        <h2 class="slide__section-title">Start with<br/>what's already shared.</h2>
+        <div class="slide__section-rule"></div>
+      </section>
+
+      <!-- 49 · COMPARE · Remember this code? KMP fixes this. -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Remember this code? <span style="color: var(--color-accent-purple);">KMP fixes this.</span></h3>
+        <div class="slide__body" style="display:flex; flex-direction:column; gap: 10px; height: 86%;">
+          <div class="anim-from-left">
+            <p class="t-mono-bold" style="color: var(--color-accent-orange); margin: 0 0 4px; font-size: 11pt;">// android — Kotlin (live)</p>
+<pre class="code-block" style="font-size: 11pt; line-height: 1.35; padding: 10px 16px; margin: 0;"><span class="tok-k">fun</span> <span class="tok-n">pickSlotProduct</span>(slot: <span class="tok-t">Slot</span>, alreadyPicked: <span class="tok-t">Set</span>&lt;<span class="tok-t">String</span>&gt;): <span class="tok-t">String</span> {
+    <span class="tok-k">val</span> default = slot.products.<span class="tok-n">firstOrNull</span> { it.<span class="tok-a">id</span> == slot.<span class="tok-a">defaultProductId</span> }
+    <span class="tok-k">if</span> (default != <span class="tok-k">null</span> &amp;&amp; !default.<span class="tok-a">isInStop</span> &amp;&amp; <span class="hl-fix">default.<span class="tok-a">id</span> !<span class="tok-k">in</span> alreadyPicked</span>) <span class="tok-k">return</span> default.<span class="tok-a">id</span>
+    <span class="tok-k">val</span> fresh = slot.products.<span class="tok-n">firstOrNull</span> { !it.<span class="tok-a">isInStop</span> &amp;&amp; <span class="hl-fix">it.<span class="tok-a">id</span> !<span class="tok-k">in</span> alreadyPicked</span> }
+    <span class="tok-k">if</span> (fresh != <span class="tok-k">null</span>) <span class="tok-k">return</span> fresh.<span class="tok-a">id</span>
+    <span class="tok-k">return</span> slot.products.<span class="tok-n">firstOrNull</span> { !it.<span class="tok-a">isInStop</span> }?.<span class="tok-a">id</span> ?: slot.products.<span class="tok-n">first</span>().<span class="tok-a">id</span>
+}</pre>
+          </div>
+          <div class="anim-from-right">
+            <p class="t-mono-bold" style="color: var(--color-accent-purple); margin: 0 0 4px; font-size: 11pt;">// ios — Swift (also live)<span style="color: var(--color-accent-purple); margin-left: 16px;">missing both dedup checks ↓</span></p>
+<pre class="code-block" style="font-size: 11pt; line-height: 1.35; padding: 10px 16px; margin: 0;"><span class="tok-k">func</span> <span class="tok-n">pickSlotProduct</span>(slot: <span class="tok-t">Slot</span>, alreadyPicked: <span class="tok-t">Set</span>&lt;<span class="tok-t">String</span>&gt;) -&gt; <span class="tok-t">String</span> {
+    <span class="tok-k">if let</span> d = slot.products.<span class="tok-n">first</span>(where: { $0.<span class="tok-a">id</span> == slot.<span class="tok-a">defaultProductId</span> }),
+       !d.<span class="tok-a">isInStop</span> <span class="hl-fix">/* no `!alreadyPicked.contains(d.id)` */</span> {
+        <span class="tok-k">return</span> d.<span class="tok-a">id</span>
+    }
+    <span class="tok-k">if let</span> fresh = slot.products.<span class="tok-n">first</span>(where: { !$0.<span class="tok-a">isInStop</span> <span class="hl-fix">/* no dedup */</span> }) {
+        <span class="tok-k">return</span> fresh.<span class="tok-a">id</span>
+    }
+    <span class="tok-k">return</span> slot.products.<span class="tok-n">first</span>!.<span class="tok-a">id</span>
+}</pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- 50 · DIAGRAM · Vertical slice — module graph -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Two architectures. One pick.</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/ios-android-modules.png"
+               alt="Android per-feature modules vs iOS layered architecture"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- 51 · DIAGRAM · Vertical slice — shareable highlighted -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">The one slice we can lift</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/ios-android-modules-shareable.png"
+               alt="Same module graph with one Android feature's domain-impl and iOS domain highlighted as shareable — green check between them"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- 52 · BIG-WORD · What hurts? Domain logic. That's what we share. -->
+      <section class="slide slide--bigword">
+        <div class="bw bw-stack bw--md">
+          <span>What hurts?</span>
+          <span><span class="bw--accent">Domain logic.</span></span>
+          <span>That's what we share.</span>
+        </div>
+      </section>
+
+      <!-- 53 · IMAGE · Combo pilot intro -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Pilot · Combo builder</h3>
+        <div class="slide__body" style="display:grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; height: 78%;">
+          <div class="phone phone--real anim-from-left" style="margin-left:auto;">
+            <div class="phone__screen">
+              <video src="assets/media/combo-transition.webm"
+                     autoplay loop muted playsinline
+                     class="phone__shot"></video>
+            </div>
+          </div>
+          <div class="anim-from-right stagger">
+            <p class="t-mono" style="color: var(--color-accent-purple); text-transform: uppercase; letter-spacing: 0.06em;">// real feature</p>
+            <p class="t-h1" style="margin: 8px 0 24px;">Combo builder.</p>
+            <p class="t-body" style="font-size: 16pt; line-height: 1.5; color: var(--color-text-secondary);">
+              Pick a drink. Pick a food.<br/>
+              Skip what's out of stock.<br/>
+              Honour the cross-slot dedup rule.<br/>
+              Compute the right price.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 54 · BULLETS · Why combo -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Why combo</h3>
+        <div class="slide__body">
+          <ul class="list list--lg stagger">
+            <li>Real client-side logic — rules, picking, pricing.</li>
+            <li>Identical behaviour required on both platforms.</li>
+            <li>Already a divergence source — we'd written it twice.</li>
+            <li><strong>Pure function</strong>: no IO, no state, no platform deps.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 55 · DIAGRAM · Pure function · shared domain in KMP -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">What lives in KMP — just the pure function</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/pure-function-shared-domain.png"
+               alt="Android and iOS module graphs both arrowing into a single shared KMP domain box"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- 56 · CODE · The whole shared surface (template) -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">The whole shared surface</h3>
+        <div class="slide__body">
+          <p class="code-caption">combo/src/commonMain/.../ComboResolver.kt</p>
+<pre class="code-block"><span class="tok-c">// Inputs in. Result out. No platform deps.</span>
+<span class="tok-k">fun</span> <span class="tok-n">resolveCombo</span>(
+    template: <span class="tok-t">ComboTemplate</span>,
+    menu: <span class="tok-t">Menu</span>,
+): <span class="tok-t">ComboResolution</span></pre>
+          <p class="code-caption-bottom">One pure function. Deterministic. No IO.</p>
+        </div>
+      </section>
+
+      <!-- 57 · CODE · Wiring — one line on each platform -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Wiring — one line on each platform</h3>
+        <div class="slide__body" style="display:flex; flex-direction:column; gap: 18px; height: 82%;">
+          <div class="anim-from-left">
+            <p class="t-mono-bold" style="color: var(--color-accent-orange); margin: 0 0 8px;">// android</p>
+            <p class="code-caption">drinkit-android/feature/combo/build.gradle.kts</p>
+<pre class="code-block"><span class="tok-k">dependencies</span> {
+    <span class="tok-n">implementation</span>(<span class="tok-s">"io.dodobrands.kmp:combo:1.0.0"</span>)
+}</pre>
+            <p class="code-caption">…call site</p>
+<pre class="code-block"><span class="tok-k">val</span> result = <span class="tok-n">resolveCombo</span>(template, menu)</pre>
+          </div>
+          <div class="anim-from-right">
+            <p class="t-mono-bold" style="color: var(--color-accent-purple); margin: 0 0 8px;">// ios</p>
+            <p class="code-caption">drinkit-ios/Package.swift</p>
+<pre class="code-block">.<span class="tok-n">package</span>(name: <span class="tok-s">"DodoKMP"</span>, path: <span class="tok-s">"../kmp"</span>)</pre>
+            <p class="code-caption">…call site</p>
+<pre class="code-block"><span class="tok-k">let</span> result = <span class="tok-t">ComboResolverKt</span>.<span class="tok-n">resolveCombo</span>(template: template, menu: menu)</pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- 58 · BIG-WORD · Inputs in. Result out. No platform deps. -->
+      <section class="slide slide--bigword">
+        <div class="bw bw-stack bw--md">
+          <span>Inputs in.</span>
+          <span>Result out.</span>
+          <span><span class="bw--accent">No platform deps.</span></span>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           PART 6 — When the feature needs more  (59–67)
+           ============================================================ -->
+
+      <!-- 59 · SECTION · 6 · When the feature needs more. -->
+      <section class="slide slide--section bg-bloom bloom--orange">
+        <p class="slide__section-eyebrow">// part 06</p>
+        <h2 class="slide__section-title">When the feature<br/>needs more.</h2>
+        <div class="slide__section-rule"></div>
+      </section>
+
+      <!-- 60 · IMAGE · DrinkitLab triptych -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">A stateful feature · DrinkitLab</h3>
+        <div class="slide__body" style="height: 80%;">
+          <div class="phones" style="gap: 32px;">
+            <div class="phone phone--real anim-from-left">
+              <div class="phone__screen">
+                <img src="assets/screens/drinkit-lab-1.png" alt="DrinkitLab — prompt input" class="phone__shot">
+              </div>
+            </div>
+            <div class="phone phone--real anim-fade">
+              <div class="phone__screen">
+                <img src="assets/screens/drinkit-lab-2.png" alt="DrinkitLab — generating" class="phone__shot">
+              </div>
+            </div>
+            <div class="phone phone--real anim-from-right">
+              <div class="phone__screen">
+                <img src="assets/screens/drinkit-lab-3.png" alt="DrinkitLab — result drink" class="phone__shot">
+              </div>
+            </div>
+          </div>
+          <p class="t-mono" style="text-align:center; color: var(--color-accent-purple); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 16px;">// prompt → generating → result</p>
+        </div>
+      </section>
+
+      <!-- 61 · BULLETS · What this one needs from the world -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">What this one needs from the world</h3>
+        <div class="slide__body" style="display:grid; grid-template-columns: 1.3fr 1fr; gap: 56px; align-items: center; height: 80%;">
+          <ul class="list list--lg stagger">
+            <li>Talks to a backend (an agent / LLM proxy).</li>
+            <li>Reads the menu (the AI needs to know what drinks exist).</li>
+            <li>Reads prompts from remote config.</li>
+            <li>Same logic on both platforms — but now there's <em>glue</em>.</li>
+          </ul>
+          <div class="phone phone--real anim-from-right" style="margin: 0 auto;">
+            <div class="phone__screen">
+              <img src="assets/screens/drinkit-lab-1.png"
+                   alt="DrinkitLab — prompt input"
+                   class="phone__shot">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 62 · BIG-WORD · Same idea. More glue. -->
+      <section class="slide slide--bigword">
+        <div class="bw bw--md">
+          Same idea. <span class="bw--accent">More glue.</span>
+        </div>
+      </section>
+
+      <!-- 63 · DIAGRAM · We can't just lift data into KMP -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">We can't just lift data into KMP</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/kmp-data-only-blocked.png"
+               alt="Android and iOS data layers arrowed at a shared KMP data box, blocked by a red X"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- 64 · BULLETS · Not a pure function any more -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">It's not a pure function any more</h3>
+        <div class="slide__body">
+          <ul class="list list--lg stagger">
+            <li>The network — to fetch what the feature needs.</li>
+            <li>The menu — what drinks exist.</li>
+            <li>Stop-lists — what's available right now.</li>
+            <li>User preferences — country, language, prompts.</li>
+            <li><em>Same logic both platforms — but now there's glue.</em></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 65 · BIG-WORD · Dependency inversion. Baby steps. -->
+      <section class="slide slide--bigword">
+        <div class="bw bw--md"><span class="bw--accent">Dependency inversion.</span><br/><span class="bw__sub">// baby steps.</span></div>
+      </section>
+
+      <!-- 66 · DIAGRAM · Network — invert it. Provide an interface. -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Network — invert it. Provide an interface.</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/kmp-data-with-interfaces.png"
+               alt="Shared KMP module exposes interface boxes; each app's data layer implements them"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- 67 · DIAGRAM · Domain — same trick. Data providers. -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Domain — same trick. Data providers.</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/kmp-domain-data-with-providers.png"
+               alt="KMP centre exposes two interface rows: data providers (menu/stop-list) and data (HTTP); each app fulfils both"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- ============================================================
+           PART 7 — The HTTP transport bridge  (68–84)
+           ============================================================ -->
+
+      <!-- 68 · SECTION · 7 · The HTTP transport bridge. -->
+      <section class="slide slide--section bg-bloom bloom--blue">
+        <p class="slide__section-eyebrow">// part 07</p>
+        <h2 class="slide__section-title">The HTTP transport<br/>bridge.</h2>
+        <div class="slide__section-rule"></div>
+      </section>
+
+      <!-- 69 · BULLETS · Constraint -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">The constraint</h3>
+        <div class="slide__body">
+          <ul class="list list--lg stagger">
+            <li><strong>Android</strong> — OkHttp + Retrofit + ~10 interceptors.</li>
+            <li><strong>iOS</strong> — OpenAPI Generator + middleware chain.</li>
+            <li>Android commits the generated Kotlin DTOs / HTTP clients. iOS regenerates Swift on every build — nothing in the repo.</li>
+            <li>Both: auth, URL rewriting, captcha, metrics, logs.</li>
+            <li>Replacing them is a <em>year</em> of work.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 70 · BIG-WORD -->
+      <section class="slide slide--bigword"><div class="bw bw--md"><span class="bw--accent">Ktor</span> on top.</div></section>
+
+      <!-- 71 · BIG-WORD -->
+      <section class="slide slide--bigword"><div class="bw bw--md">Custom <em>engine</em><br/>underneath.</div></section>
+
+      <!-- 72 · CODE · HttpTransport interface -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">HttpTransport · the entire bridge</h3>
+        <div class="slide__body">
+          <p class="code-caption">core/src/commonMain/.../transport/HttpTransport.kt</p>
+<pre class="code-block"><span class="tok-k">interface</span> <span class="tok-t">HttpTransport</span> {
+    <span class="tok-k">fun</span> <span class="tok-n">execute</span>(
+        request:   <span class="tok-t">TransportRequest</span>,
+        onSuccess: (<span class="tok-t">TransportResponse</span>) -&gt; <span class="tok-t">Unit</span>,
+        onFailure: (<span class="tok-t">Throwable</span>) -&gt; <span class="tok-t">Unit</span>,
+    ): <span class="tok-t">Cancellable</span>
+
+    <span class="tok-k">companion object</span> {
+        <span class="tok-k">const val</span> PLACEHOLDER_BASE_URL: <span class="tok-t">String</span> =
+            <span class="tok-s">"https://ai-proxy.drinkit.internal"</span>
+    }
+}
+
+<span class="tok-k">fun interface</span> <span class="tok-t">Cancellable</span> { <span class="tok-k">fun</span> <span class="tok-n">cancel</span>() }</pre>
+        </div>
+      </section>
+
+      <!-- 73 · CODE · TransportRequest -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">TransportRequest · just bytes</h3>
+        <div class="slide__body">
+          <p class="code-caption">core/src/commonMain/.../transport/TransportRequest.kt</p>
+<pre class="code-block"><span class="tok-k">data class</span> <span class="tok-t">TransportRequest</span>(
+    <span class="tok-k">val</span> path:    <span class="tok-t">String</span>,                       <span class="tok-c">// starts with "/"</span>
+    <span class="tok-k">val</span> query:   <span class="tok-t">String</span>?,                      <span class="tok-c">// already percent-encoded</span>
+    <span class="tok-k">val</span> method:  <span class="tok-t">String</span>,                       <span class="tok-c">// "GET", "POST", ...</span>
+    <span class="tok-k">val</span> headers: <span class="tok-t">Map</span>&lt;<span class="tok-t">String</span>, <span class="tok-t">List</span>&lt;<span class="tok-t">String</span>&gt;&gt;,
+    <span class="tok-k">val</span> body:    <span class="tok-t">ByteArray</span>?,
+)</pre>
+          <p class="t-caption" style="margin-top: 16px; font-size: 13pt;">No URL. The host owns where it goes.</p>
+        </div>
+      </section>
+
+      <!-- 74 · DIAGRAM · TransportEngine inside Ktor -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Ktor on top · HttpTransport at the bottom</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/transport-flow.png"
+               alt="Ktor HttpClient → TransportEngine → HttpTransport with Android (OkHttp) and iOS (URLSession) plugging in from the sides"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- 75 · CODE · OkHttpTransport -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Android · OkHttpTransport · uses your existing client</h3>
+        <div class="slide__body">
+          <p class="code-caption">core/src/androidMain/.../transport/OkHttpTransport.kt</p>
+<pre class="code-block"><span class="tok-k">class</span> <span class="tok-t">OkHttpTransport</span>(
+    <span class="tok-k">private val</span> client: <span class="tok-t">OkHttpClient</span>,
+) : <span class="tok-t">HttpTransport</span> {
+    <span class="tok-k">override fun</span> <span class="tok-n">execute</span>(
+        request: <span class="tok-t">TransportRequest</span>,
+        onSuccess: (<span class="tok-t">TransportResponse</span>) -&gt; <span class="tok-t">Unit</span>,
+        onFailure: (<span class="tok-t">Throwable</span>) -&gt; <span class="tok-t">Unit</span>,
+    ): <span class="tok-t">Cancellable</span> {
+        <span class="tok-k">val</span> call = client.<span class="tok-n">newCall</span>(<span class="tok-n">buildOkRequest</span>(request))
+        call.<span class="tok-n">enqueue</span>(<span class="tok-k">object</span> : <span class="tok-t">Callback</span> {
+            <span class="tok-k">override fun</span> <span class="tok-n">onFailure</span>(call: <span class="tok-t">Call</span>, e: <span class="tok-t">IOException</span>) = <span class="tok-n">onFailure</span>(e)
+            <span class="tok-k">override fun</span> <span class="tok-n">onResponse</span>(call: <span class="tok-t">Call</span>, response: <span class="tok-t">Response</span>) {
+                response.<span class="tok-n">use</span> { r -&gt;
+                    <span class="tok-n">onSuccess</span>(<span class="tok-t">TransportResponse</span>(r.code, r.headers.<span class="tok-n">toMultimap</span>(), r.body?.<span class="tok-n">bytes</span>() ?: <span class="tok-t">ByteArray</span>(<span class="tok-n">0</span>)))
+                }
+            }
+        })
+        <span class="tok-k">return</span> <span class="tok-t">Cancellable</span> { call.<span class="tok-n">cancel</span>() }
+    }
+}</pre>
+        </div>
+      </section>
+
+      <!-- 76 · CODE · Android transport · class -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Android · implement <span style="color: var(--color-accent-purple);">HttpTransport</span></h3>
+        <div class="slide__body">
+          <p class="code-caption">core/src/androidMain/.../transport/OkHttpTransport.kt</p>
+<pre class="code-block code-dim"><span class="hl-keep"><span class="tok-k">class</span> <span class="tok-t">OkHttpTransport</span>(
+    <span class="tok-k">private val</span> client: <span class="tok-t">OkHttpClient</span>,
+) : <span class="tok-t">HttpTransport</span> {</span>
+    <span class="tok-k">override fun</span> <span class="tok-n">execute</span>(
+        request: <span class="tok-t">TransportRequest</span>,
+        onSuccess: (<span class="tok-t">TransportResponse</span>) -&gt; <span class="tok-t">Unit</span>,
+        onFailure: (<span class="tok-t">Throwable</span>) -&gt; <span class="tok-t">Unit</span>,
+    ): <span class="tok-t">Cancellable</span> {
+        <span class="tok-k">val</span> call = client.<span class="tok-n">newCall</span>(<span class="tok-n">buildOkRequest</span>(request))
+        call.<span class="tok-n">enqueue</span>(<span class="tok-k">object</span> : <span class="tok-t">Callback</span> {
+            <span class="tok-k">override fun</span> <span class="tok-n">onFailure</span>(call: <span class="tok-t">Call</span>, e: <span class="tok-t">IOException</span>) = <span class="tok-n">onFailure</span>(e)
+            <span class="tok-k">override fun</span> <span class="tok-n">onResponse</span>(call: <span class="tok-t">Call</span>, response: <span class="tok-t">Response</span>) {
+                response.<span class="tok-n">use</span> { r -&gt;
+                    <span class="tok-n">onSuccess</span>(<span class="tok-t">TransportResponse</span>(r.code, r.headers.<span class="tok-n">toMultimap</span>(), r.body?.<span class="tok-n">bytes</span>() ?: <span class="tok-t">ByteArray</span>(<span class="tok-n">0</span>)))
+                }
+            }
+        })
+        <span class="tok-k">return</span> <span class="tok-t">Cancellable</span> { call.<span class="tok-n">cancel</span>() }
+    }
+}</pre>
+        </div>
+      </section>
+
+      <!-- 77 · CODE · Android transport · signature -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Android · override <span style="color: var(--color-accent-purple);">execute</span></h3>
+        <div class="slide__body">
+          <p class="code-caption">core/src/androidMain/.../transport/OkHttpTransport.kt</p>
+<pre class="code-block code-dim"><span class="tok-k">class</span> <span class="tok-t">OkHttpTransport</span>(
+    <span class="tok-k">private val</span> client: <span class="tok-t">OkHttpClient</span>,
+) : <span class="tok-t">HttpTransport</span> {
+    <span class="hl-keep"><span class="tok-k">override fun</span> <span class="tok-n">execute</span>(
+        request: <span class="tok-t">TransportRequest</span>,
+        onSuccess: (<span class="tok-t">TransportResponse</span>) -&gt; <span class="tok-t">Unit</span>,
+        onFailure: (<span class="tok-t">Throwable</span>) -&gt; <span class="tok-t">Unit</span>,
+    ): <span class="tok-t">Cancellable</span> {</span>
+        <span class="tok-k">val</span> call = client.<span class="tok-n">newCall</span>(<span class="tok-n">buildOkRequest</span>(request))
+        call.<span class="tok-n">enqueue</span>(<span class="tok-k">object</span> : <span class="tok-t">Callback</span> {
+            <span class="tok-k">override fun</span> <span class="tok-n">onFailure</span>(call: <span class="tok-t">Call</span>, e: <span class="tok-t">IOException</span>) = <span class="tok-n">onFailure</span>(e)
+            <span class="tok-k">override fun</span> <span class="tok-n">onResponse</span>(call: <span class="tok-t">Call</span>, response: <span class="tok-t">Response</span>) {
+                response.<span class="tok-n">use</span> { r -&gt;
+                    <span class="tok-n">onSuccess</span>(<span class="tok-t">TransportResponse</span>(r.code, r.headers.<span class="tok-n">toMultimap</span>(), r.body?.<span class="tok-n">bytes</span>() ?: <span class="tok-t">ByteArray</span>(<span class="tok-n">0</span>)))
+                }
+            }
+        })
+        <span class="tok-k">return</span> <span class="tok-t">Cancellable</span> { call.<span class="tok-n">cancel</span>() }
+    }
+}</pre>
+        </div>
+      </section>
+
+      <!-- 78 · CODE · Android transport · body -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Android · hand off to <span style="color: var(--color-accent-purple);">your OkHttp client</span></h3>
+        <div class="slide__body">
+          <p class="code-caption">core/src/androidMain/.../transport/OkHttpTransport.kt</p>
+<pre class="code-block code-dim"><span class="tok-k">class</span> <span class="tok-t">OkHttpTransport</span>(
+    <span class="tok-k">private val</span> client: <span class="tok-t">OkHttpClient</span>,
+) : <span class="tok-t">HttpTransport</span> {
+    <span class="tok-k">override fun</span> <span class="tok-n">execute</span>(
+        request: <span class="tok-t">TransportRequest</span>,
+        onSuccess: (<span class="tok-t">TransportResponse</span>) -&gt; <span class="tok-t">Unit</span>,
+        onFailure: (<span class="tok-t">Throwable</span>) -&gt; <span class="tok-t">Unit</span>,
+    ): <span class="tok-t">Cancellable</span> {
+        <span class="hl-keep"><span class="tok-k">val</span> call = client.<span class="tok-n">newCall</span>(<span class="tok-n">buildOkRequest</span>(request))
+        call.<span class="tok-n">enqueue</span>(<span class="tok-k">object</span> : <span class="tok-t">Callback</span> {
+            <span class="tok-k">override fun</span> <span class="tok-n">onFailure</span>(call: <span class="tok-t">Call</span>, e: <span class="tok-t">IOException</span>) = <span class="tok-n">onFailure</span>(e)
+            <span class="tok-k">override fun</span> <span class="tok-n">onResponse</span>(call: <span class="tok-t">Call</span>, response: <span class="tok-t">Response</span>) {
+                response.<span class="tok-n">use</span> { r -&gt;
+                    <span class="tok-n">onSuccess</span>(<span class="tok-t">TransportResponse</span>(r.code, r.headers.<span class="tok-n">toMultimap</span>(), r.body?.<span class="tok-n">bytes</span>() ?: <span class="tok-t">ByteArray</span>(<span class="tok-n">0</span>)))
+                }
+            }
+        })
+        <span class="tok-k">return</span> <span class="tok-t">Cancellable</span> { call.<span class="tok-n">cancel</span>() }</span>
+    }
+}</pre>
+        </div>
+      </section>
+
+      <!-- 79 · CODE · iOS Swift transport -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">iOS · SampleHttpTransport · same interface, Swift</h3>
+        <div class="slide__body">
+          <p class="code-caption">sampleIos/SampleIos/Network/SampleHttpTransport.swift</p>
+<pre class="code-block"><span class="tok-k">final class</span> <span class="tok-t">SampleHttpTransport</span>: <span class="tok-t">HttpTransport</span> {
+    <span class="tok-k">func</span> <span class="tok-n">execute</span>(
+        request: <span class="tok-t">TransportRequest</span>,
+        onSuccess: @escaping (<span class="tok-t">TransportResponse</span>) -&gt; <span class="tok-t">Void</span>,
+        onFailure: @escaping (<span class="tok-t">KotlinThrowable</span>) -&gt; <span class="tok-t">Void</span>
+    ) -&gt; <span class="tok-k">any</span> <span class="tok-t">Cancellable</span> {
+        <span class="tok-k">let</span> task = <span class="tok-t">Task</span> {
+            <span class="tok-c">// build URLRequest from baseURL + request.path + request.query</span>
+            <span class="tok-k">let</span> (data, response) = <span class="tok-k">try await</span> <span class="tok-t">URLSession</span>.shared.<span class="tok-n">data</span>(for: urlRequest)
+            <span class="tok-k">guard let</span> http = response <span class="tok-k">as?</span> <span class="tok-t">HTTPURLResponse</span> <span class="tok-k">else</span> { onFailure(...); <span class="tok-k">return</span> }
+            <span class="tok-n">onSuccess</span>(<span class="tok-t">TransportResponse</span>(
+                statusCode: <span class="tok-t">Int32</span>(http.statusCode),
+                headers:    parsedHeaders,
+                body:       data.<span class="tok-n">toKotlinByteArray</span>()
+            ))
+        }
+        <span class="tok-k">return</span> <span class="tok-t">SampleCancellableTask</span>(task: task)
+    }
+}</pre>
+        </div>
+      </section>
+
+      <!-- 80 · CODE · iOS transport · class -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">iOS · implement <span style="color: var(--color-accent-purple);">HttpTransport</span> in Swift</h3>
+        <div class="slide__body">
+          <p class="code-caption">sampleIos/SampleIos/Network/SampleHttpTransport.swift</p>
+<pre class="code-block code-dim"><span class="hl-keep"><span class="tok-k">final class</span> <span class="tok-t">SampleHttpTransport</span>: <span class="tok-t">HttpTransport</span> {</span>
+    <span class="tok-k">func</span> <span class="tok-n">execute</span>(
+        request: <span class="tok-t">TransportRequest</span>,
+        onSuccess: @escaping (<span class="tok-t">TransportResponse</span>) -&gt; <span class="tok-t">Void</span>,
+        onFailure: @escaping (<span class="tok-t">KotlinThrowable</span>) -&gt; <span class="tok-t">Void</span>
+    ) -&gt; <span class="tok-k">any</span> <span class="tok-t">Cancellable</span> {
+        <span class="tok-k">let</span> task = <span class="tok-t">Task</span> {
+            <span class="tok-c">// build URLRequest from baseURL + request.path + request.query</span>
+            <span class="tok-k">let</span> (data, response) = <span class="tok-k">try await</span> <span class="tok-t">URLSession</span>.shared.<span class="tok-n">data</span>(for: urlRequest)
+            <span class="tok-k">guard let</span> http = response <span class="tok-k">as?</span> <span class="tok-t">HTTPURLResponse</span> <span class="tok-k">else</span> { onFailure(...); <span class="tok-k">return</span> }
+            <span class="tok-n">onSuccess</span>(<span class="tok-t">TransportResponse</span>(
+                statusCode: <span class="tok-t">Int32</span>(http.statusCode),
+                headers:    parsedHeaders,
+                body:       data.<span class="tok-n">toKotlinByteArray</span>()
+            ))
+        }
+        <span class="tok-k">return</span> <span class="tok-t">SampleCancellableTask</span>(task: task)
+    }
+}</pre>
+        </div>
+      </section>
+
+      <!-- 81 · CODE · iOS transport · signature -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">iOS · the <span style="color: var(--color-accent-purple);">same</span> execute signature</h3>
+        <div class="slide__body">
+          <p class="code-caption">sampleIos/SampleIos/Network/SampleHttpTransport.swift</p>
+<pre class="code-block code-dim"><span class="tok-k">final class</span> <span class="tok-t">SampleHttpTransport</span>: <span class="tok-t">HttpTransport</span> {
+    <span class="hl-keep"><span class="tok-k">func</span> <span class="tok-n">execute</span>(
+        request: <span class="tok-t">TransportRequest</span>,
+        onSuccess: @escaping (<span class="tok-t">TransportResponse</span>) -&gt; <span class="tok-t">Void</span>,
+        onFailure: @escaping (<span class="tok-t">KotlinThrowable</span>) -&gt; <span class="tok-t">Void</span>
+    ) -&gt; <span class="tok-k">any</span> <span class="tok-t">Cancellable</span> {</span>
+        <span class="tok-k">let</span> task = <span class="tok-t">Task</span> {
+            <span class="tok-c">// build URLRequest from baseURL + request.path + request.query</span>
+            <span class="tok-k">let</span> (data, response) = <span class="tok-k">try await</span> <span class="tok-t">URLSession</span>.shared.<span class="tok-n">data</span>(for: urlRequest)
+            <span class="tok-k">guard let</span> http = response <span class="tok-k">as?</span> <span class="tok-t">HTTPURLResponse</span> <span class="tok-k">else</span> { onFailure(...); <span class="tok-k">return</span> }
+            <span class="tok-n">onSuccess</span>(<span class="tok-t">TransportResponse</span>(
+                statusCode: <span class="tok-t">Int32</span>(http.statusCode),
+                headers:    parsedHeaders,
+                body:       data.<span class="tok-n">toKotlinByteArray</span>()
+            ))
+        }
+        <span class="tok-k">return</span> <span class="tok-t">SampleCancellableTask</span>(task: task)
+    }
+}</pre>
+        </div>
+      </section>
+
+      <!-- 82 · CODE · iOS transport · body -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">iOS · hand off to <span style="color: var(--color-accent-purple);">URLSession</span></h3>
+        <div class="slide__body">
+          <p class="code-caption">sampleIos/SampleIos/Network/SampleHttpTransport.swift</p>
+<pre class="code-block code-dim"><span class="tok-k">final class</span> <span class="tok-t">SampleHttpTransport</span>: <span class="tok-t">HttpTransport</span> {
+    <span class="tok-k">func</span> <span class="tok-n">execute</span>(
+        request: <span class="tok-t">TransportRequest</span>,
+        onSuccess: @escaping (<span class="tok-t">TransportResponse</span>) -&gt; <span class="tok-t">Void</span>,
+        onFailure: @escaping (<span class="tok-t">KotlinThrowable</span>) -&gt; <span class="tok-t">Void</span>
+    ) -&gt; <span class="tok-k">any</span> <span class="tok-t">Cancellable</span> {
+        <span class="hl-keep"><span class="tok-k">let</span> task = <span class="tok-t">Task</span> {
+            <span class="tok-c">// build URLRequest from baseURL + request.path + request.query</span>
+            <span class="tok-k">let</span> (data, response) = <span class="tok-k">try await</span> <span class="tok-t">URLSession</span>.shared.<span class="tok-n">data</span>(for: urlRequest)
+            <span class="tok-k">guard let</span> http = response <span class="tok-k">as?</span> <span class="tok-t">HTTPURLResponse</span> <span class="tok-k">else</span> { onFailure(...); <span class="tok-k">return</span> }
+            <span class="tok-n">onSuccess</span>(<span class="tok-t">TransportResponse</span>(
+                statusCode: <span class="tok-t">Int32</span>(http.statusCode),
+                headers:    parsedHeaders,
+                body:       data.<span class="tok-n">toKotlinByteArray</span>()
+            ))
+        }
+        <span class="tok-k">return</span> <span class="tok-t">SampleCancellableTask</span>(task: task)</span>
+    }
+}</pre>
+        </div>
+      </section>
+
+      <!-- 83 · BIG-WORD -->
+      <section class="slide slide--bigword"><div class="bw bw--md">Network — <span class="bw--accent">solved</span>.</div></section>
+
+      <!-- 84 · BIG-WORD -->
+      <section class="slide slide--bigword"><div class="bw bw--sm">Same pattern<br/>for everything else.</div></section>
+
+
+
+
+      <!-- ============================================================
+           PART 8 — How we ship it  (85–89)
+           ============================================================ -->
+
+      <!-- 85 · SECTION · 8 · How we ship it -->
+      <section class="slide slide--section bg-bloom bloom--mint">
+        <p class="slide__section-eyebrow">// part 08</p>
+        <h2 class="slide__section-title">How we ship it.</h2>
+        <div class="slide__section-rule"></div>
+      </section>
+
+      <!-- 86 · BULLETS · Three options -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">How do we share the KMP code?</h3>
+        <div class="slide__body">
+          <ul class="list list--lg stagger">
+            <li><strong>Monorepo</strong> — apps and shared code in one repo.</li>
+            <li><strong>Copy-paste</strong> — drop the shared file into each app.</li>
+            <li><strong>Library</strong> — publish artifacts, depend on them.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 87 · BIG-WORD · Library -->
+      <section class="slide slide--bigword">
+        <div class="bw"><span class="bw--accent">Library.</span></div>
+      </section>
+
+      <!-- 88 · DIAGRAM · KMP integration shape -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Different shape on each platform</h3>
+        <div class="slide__body diagram-wrap">
+          <img src="assets/diagrams/kmp-integration.png"
+               alt="Android consumes per-module Maven artifacts; iOS consumes a single umbrella xcframework"
+               class="diagram-img">
+        </div>
+      </section>
+
+      <!-- 89 · BIG-WORD · CI ships it -->
+      <section class="slide slide--bigword">
+        <div class="bw bw--md"><span class="bw--accent">CI</span> ships it.</div>
+      </section>
+
+      <!-- ============================================================
+           PART 9 — Getting iOS engineers to write Kotlin  (90–100)
+           ============================================================ -->
+
+      <!-- 90 · SECTION · 9 · Getting iOS engineers to write Kotlin -->
+      <section class="slide slide--section bg-bloom bloom--purple">
+        <p class="slide__section-eyebrow">// part 09</p>
+        <h2 class="slide__section-title">Getting iOS engineers<br/>to write Kotlin.</h2>
+        <div class="slide__section-rule"></div>
+      </section>
+
+      <!-- 91 · BIG-WORD · Reframe -->
+      <section class="slide slide--bigword">
+        <div class="bw bw--md">"Getting iOS engineers to…"</div>
+      </section>
+
+      <!-- 92 · BIG-WORD · Wrong frame -->
+      <section class="slide slide--bigword">
+        <div class="bw bw--sm">
+          <span class="strike">"Getting iOS engineers to…"</span>
+          <span class="bw__sub">// wrong frame</span>
+        </div>
+      </section>
+
+      <!-- 93 · BIG-WORD · Forcing it = resentment / It feels unfair -->
+      <section class="slide slide--bigword">
+        <div class="bw bw-stack bw--md">
+          <span>Forcing it = <span class="bw--orange">resentment</span>.</span>
+          <span>It <em>feels</em> unfair.</span>
+        </div>
+      </section>
+
+      <!-- 94 · BIG-WORD -->
+      <section class="slide slide--bigword">
+        <div class="bw bw--sm">Tactical:<br/>find an <span class="bw--accent">ally</span> on iOS.</div>
+      </section>
+
+      <!-- 95 · BIG-WORD -->
+      <section class="slide slide--bigword">
+        <div class="bw bw--md">But we went <span class="bw--accent">bigger</span>.</div>
+      </section>
+
+      <!-- 96 · BULLETS · The trend -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">A western big-tech trend</h3>
+        <div class="slide__body">
+          <ul class="list list--lg stagger">
+            <li>Engineers stop being "iOS" or "Android".</li>
+            <li>They become <strong>"Mobile Engineers"</strong>.</li>
+            <li>One human · two platforms.</li>
+            <li>AI tooling makes this realistic now.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 97 · BIG-WORD -->
+      <section class="slide slide--bigword">
+        <div class="bw bw--sm">Everyone is a<br/><span class="bw--accent">Mobile Engineer</span>.</div>
+      </section>
+
+      <!-- 98 · COMPARE · Win-win -->
+      <section class="slide slide--two-col">
+        <h3 class="slide__title">Why it's win-win</h3>
+        <div class="slide__columns">
+          <div class="slide__col anim-from-left">
+            <p class="t-mono-bold" style="color: var(--color-accent-purple);">// company</p>
+            <h4>One brain → two platforms</h4>
+            <p class="t-body" style="font-size: 16pt; line-height: 1.5;">
+              One mental model. One context. No cross-team handoffs.
+              Better consistency than two engineers running in parallel.
+            </p>
+          </div>
+          <div class="slide__col anim-from-right">
+            <p class="t-mono-bold" style="color: var(--color-accent-orange);">// engineer</p>
+            <h4>Growth · range · stronger CV</h4>
+            <p class="t-body" style="font-size: 16pt; line-height: 1.5;">
+              Your skill range doubles. You become more valuable —
+              especially if you ever want to interview at a western big-tech.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 99 · BIG-WORD -->
+      <section class="slide slide--bigword">
+        <div class="bw bw--md">Resistance to KMP<br/><span class="bw--accent">dropped</span>.</div>
+      </section>
+
+      <!-- 100 · BIG-WORD -->
+      <section class="slide slide--bigword">
+        <div class="bw bw--md">It became<br/>"yes, why not".</div>
+      </section>
+
+      <!-- ============================================================
+           PART 10 — Results & what's next  (101–114)
+           ============================================================ -->
+
+      <!-- 101 · SECTION · 10 · Results & what's next -->
+      <section class="slide slide--section bg-bloom bloom--orange">
+        <p class="slide__section-eyebrow">// part 10</p>
+        <h2 class="slide__section-title">Results &amp;<br/>what's next.</h2>
+        <div class="slide__section-rule"></div>
+      </section>
+
+      <!-- 102 · BULLETS · Shipped -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Shipped — in production today</h3>
+        <div class="slide__body">
+          <ul class="list list--lg stagger">
+            <li><strong>2 features</strong> running in both apps — DrinkitLab + a combo-logic feature.</li>
+            <li><strong>HTTP transport bridge</strong> + glue pattern in production use.</li>
+            <li><strong>CI build &amp; release pipeline</strong> — artifacts published by tag, both apps consume.</li>
+            <li><strong>Unit-test coverage</strong> on the shared code — meaningful, in CI.</li>
+            <li>iOS now has tests on this surface for the <em>first time</em> — Android already did.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 103 · BULLETS · App size impact -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">App size impact</h3>
+        <div class="slide__body" style="display:flex; gap: 80px; align-items: center; height: 70%; padding-top: 20px;">
+          <div class="anim-from-left" style="flex: 1; text-align: center;">
+            <p class="t-mono" style="color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.08em;">// android</p>
+            <p style="font-family: var(--font-display-light); font-size: 120pt; line-height: 1; color: var(--color-accent-purple); margin: 16px 0;">+1<span style="font-size: 60pt;"> MB</span></p>
+          </div>
+          <div class="anim-from-right" style="flex: 1; text-align: center;">
+            <p class="t-mono" style="color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.08em;">// ios</p>
+            <p style="font-family: var(--font-display-light); font-size: 120pt; line-height: 1; color: var(--color-accent-orange); margin: 16px 0;">+4<span style="font-size: 60pt;"> MB</span></p>
+          </div>
+        </div>
+        <p class="t-caption" style="text-align:center; font-size: 13pt;">We were ready for worse.</p>
+      </section>
+
+      <!-- 104 · BULLETS · Android team feedback -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Team feedback · Android</h3>
+        <div class="slide__body" style="display:flex; align-items: center; justify-content: center; height: 78%;">
+          <div class="anim-rise" style="max-width: 720px; text-align:center;">
+            <p class="t-cover-l" style="margin: 0; color: var(--color-accent-purple);">"Great."</p>
+            <ul class="list" style="margin-top: 32px; font-size: 18pt; line-height: 1.7; text-align: left; display: inline-block;">
+              <li>Familiar language.</li>
+              <li>Familiar tools.</li>
+              <li>Life is good.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 105 · BULLETS · iOS team feedback -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">Team feedback · iOS</h3>
+        <div class="slide__body" style="display:flex; align-items: center; justify-content: center; height: 78%;">
+          <div class="anim-rise" style="max-width: 760px; text-align:center;">
+            <p class="t-cover-l" style="margin: 0; color: var(--color-accent-orange);">"Actually great."</p>
+            <ul class="list" style="margin-top: 32px; font-size: 18pt; line-height: 1.7; text-align: left; display: inline-block;">
+              <li>Some pain on the bridge — expected.</li>
+              <li>Now <strong>proactively</strong> proposing more KMP.</li>
+              <li>(That's when I knew this was working.)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 106 · BIG-WORD · TTM honest -->
+      <section class="slide slide--bigword">
+        <div class="bw bw--sm">TTM hasn't dropped —<br/><span class="bw--orange">yet</span>.</div>
+      </section>
+
+      <!-- 107 · BULLETS · What's next -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">What's next</h3>
+        <div class="slide__body">
+          <ul class="list list--lg stagger">
+            <li>Move from "feature" → "whole module".</li>
+            <li>Pilot: small feature with simple persistence + network.</li>
+            <li>Baby steps.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 108 · BIG-WORD · % shared -->
+      <section class="slide slide--bigword">
+        <div class="bw bw--sm">~2 of ~35 features.<br/><span class="bw__sub">// honest count</span></div>
+      </section>
+
+      <!-- 109 · BIG-WORD -->
+      <section class="slide slide--bigword">
+        <div class="bw bw--md">But the <span class="bw--accent">door is open</span>.</div>
+      </section>
+
+      <!-- 110 · BIG-WORD -->
+      <section class="slide slide--bigword">
+        <div class="bw bw--sm">If <em>we</em> could,<br/><span class="bw--accent">you can</span>.</div>
+      </section>
+
+      <!-- ============================================================
+           PART 10 — CLOSING  (101–114)
+           ============================================================ -->
+
+      <!-- 111 · TRANSITION · If you take one thing -->
+      <section class="slide slide--bigword slide--transition">
+        <div class="bw bw--md">If you take one thing<br/>from this talk…</div>
+      </section>
+
+      <!-- 112 · BULLETS · The advice -->
+      <section class="slide slide--content">
+        <h3 class="slide__title">The advice</h3>
+        <div class="slide__body">
+          <ul class="list list--lg stagger">
+            <li><strong>Stop asking "what can we move?"</strong> — every layer drags its dependencies; you end up rewriting everything.</li>
+            <li><strong>Ask "what do we write twice, today?"</strong> — that's the answer.</li>
+            <li>For Drinkit it was <strong>domain logic</strong>. For you, it might be something else.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 113 · BIG-WORD · Thank you -->
+      <section class="slide slide--bigword">
+        <div class="bw">Thank you.</div>
+      </section>
+
+      <!-- 114 · IMAGE · Thank you. Questions? (contacts + QR) -->
+      <section class="slide slide--content bg-cover-blooms">
+        <h3 class="slide__title">Thank you. Questions?</h3>
+        <div class="slide__body" style="display:grid; grid-template-columns: auto 1fr; gap: 80px; align-items: center; height: 80%;">
+          <img src="assets/qr.png"
+               alt="QR code to slides + sample KMP repo"
+               class="anim-fade"
+               style="width: 220px; height: 220px; border-radius: var(--radius-md);">
+          <div class="stagger">
+            <img src="assets/portrait.jpg" alt="Max Kachinkin portrait" class="contacts-avatar">
+            <p class="t-cover-l" style="margin:0 0 16pt; color: var(--color-text-primary);">Max Kachinkin</p>
+            <p class="t-h3" style="margin: 0 0 20pt; font-weight: var(--weight-light); color: var(--color-text-secondary);">Dodo Engineering · Drinkit Mobile</p>
+            <ul class="list" style="font-size: 15pt; line-height: 1.8;">
+              <li><span class="t-mono" style="color: var(--color-accent-purple);">telegram</span> &nbsp; @maxkachinkin</li>
+              <li><span class="t-mono" style="color: var(--color-accent-purple);">channel</span> &nbsp; @mobilefiction <span style="color: var(--color-text-muted); font-size: 12pt;">· Mobile Fiction</span></li>
+              <li><span class="t-mono" style="color: var(--color-accent-purple);">linkedin</span> &nbsp; /maxkachinkin</li>
+              <li><span class="t-mono" style="color: var(--color-accent-purple);">twitter</span> &nbsp; /makzimi</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <nav class="nav" id="nav" aria-label="Slide navigation">
+    <button id="prev" type="button" aria-label="Previous slide" title="Prev (←)">&larr;</button>
+    <span class="nav__counter"><span id="cur">1</span> / <span id="tot">114</span></span>
+    <button id="next" type="button" aria-label="Next slide" title="Next (→)">&rarr;</button>
+    <span class="nav__sep" aria-hidden="true"></span>
+    <button id="overview" type="button" aria-label="Overview" title="Overview (O)">&#x25A6;</button>
+    <button id="fullscreen" type="button" aria-label="Toggle fullscreen" title="Fullscreen (F)">
+      <svg class="nav__icon nav__icon--enter" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M2 6 V2 H6 M14 6 V2 H10 M2 10 V14 H6 M14 10 V14 H10"/>
+      </svg>
+      <svg class="nav__icon nav__icon--exit" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6 2 V6 H2 M10 2 V6 H14 M6 14 V10 H2 M10 14 V10 H14"/>
+      </svg>
+    </button>
+  </nav>
+
+  <div class="hint" id="hint">← →  navigate · O overview · F fullscreen · G go to · home/end jump</div>
+
+  <script src="js/nav.js"></script>
+</body>
+</html>

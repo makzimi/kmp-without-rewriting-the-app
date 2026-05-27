@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Two-column — Dodo theme</title>
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/slide.css" />
+</head>
+<body>
+  <div class="slide-stage">
+    <section class="slide slide--two-col" data-layout="two-column" data-slide="4">
+      <h3 class="slide__title">Before vs. after the migration</h3>
+
+      <div class="slide__columns">
+        <div class="slide__col">
+          <p class="t-mono-bold" style="color: var(--color-accent-orange); margin: 0 0 var(--space-3);">// before</p>
+          <ul class="list">
+            <li>Single PG primary in eu-central</li>
+            <li>Sync RPC between order &amp; inventory</li>
+            <li>P99 checkout: <strong>820&nbsp;ms</strong></li>
+            <li>Recovery from a region failure: <strong>~14&nbsp;min</strong></li>
+            <li>Two on-call engineers paged per outage</li>
+          </ul>
+        </div>
+
+        <div class="slide__col">
+          <p class="t-mono-bold" style="color: var(--color-accent-purple); margin: 0 0 var(--space-3);">// after</p>
+          <ul class="list">
+            <li>Multi-region writable cluster</li>
+            <li>Async events via <code>kafka</code></li>
+            <li>P99 checkout: <strong>240&nbsp;ms</strong></li>
+            <li>Recovery: <strong>&lt; 90&nbsp;sec</strong> (automated)</li>
+            <li>Zero pages in the last 60 days</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="slide__page-num">04</div>
+    </section>
+  </div>
+</body>
+</html>

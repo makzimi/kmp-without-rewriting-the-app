@@ -1,0 +1,704 @@
+/* ============================================================
+   Deck shell — presentation runtime on top of dodo-theme
+   ============================================================ */
+
+html, body { height: 100%; }
+body {
+  background: var(--color-bg-subtle);
+  overflow: hidden;
+}
+
+/* The stage holds one fixed-size slide centered in the viewport.
+   We override slide-stage so scaling is JS-driven (any viewport). */
+.stage {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-subtle);
+}
+
+.deck {
+  width: var(--slide-width);
+  height: var(--slide-height);
+  position: relative;
+  transform-origin: center center;
+}
+
+.deck .slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  box-shadow: var(--shadow-lg);
+}
+.deck .slide.is-active { display: block; }
+/* The .is-active rule above wins specificity over .slide--bigword/cover/section's
+   own `display: flex`. These per-type overrides restore flex so the slide's
+   `align-items: center` actually centers content vertically. */
+.deck .slide.slide--bigword.is-active,
+.deck .slide.slide--cover.is-active,
+.deck .slide.slide--section.is-active { display: flex; }
+
+/* ──── Navigation chrome ─────────────────────────────────── */
+
+.nav {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: rgba(22, 22, 22, 0.85);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+.nav.is-visible { opacity: 1; pointer-events: auto; }
+.nav button {
+  background: transparent;
+  border: 0;
+  color: #fff;
+  font: inherit;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.nav button:hover { background: rgba(255, 255, 255, 0.15); }
+.nav button { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 24px; }
+.nav .nav__counter { opacity: 0.7; padding: 0 4px; }
+.nav__sep {
+  width: 1px; height: 18px; background: rgba(255, 255, 255, 0.18);
+  margin: 0 4px;
+}
+.nav__icon--exit  { display: none; }
+.is-fullscreen .nav__icon--enter { display: none; }
+.is-fullscreen .nav__icon--exit  { display: inline-block; }
+
+/* In fullscreen we want the deck to fill the viewport edge-to-edge */
+.is-fullscreen .stage { background: #000; }
+.is-fullscreen.is-idle { cursor: none; }
+.is-fullscreen.is-idle .nav { opacity: 0 !important; }
+
+.hint {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* Overview / grid mode */
+.deck.is-overview {
+  width: auto;
+  height: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  padding: 24px;
+  transform: none !important;
+  overflow: auto;
+  position: static;
+}
+.deck.is-overview .slide {
+  position: relative;
+  display: block !important;
+  width: 1280px;
+  height: 720px;
+  transform: scale(0.25);
+  transform-origin: top left;
+  margin-bottom: -540px; /* compensates the scaled-down height */
+  margin-right: -960px;
+  cursor: pointer;
+  outline: 2px solid transparent;
+}
+.deck.is-overview .slide:hover { outline-color: var(--color-accent-purple); }
+.stage.is-overview {
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow: auto;
+  position: absolute;
+}
+
+/* ──── Slide-type tweaks ─────────────────────────────────── */
+
+/* BIG-WORD: one large phrase, centered, with bold animation.
+   Padding overridden to 0 so flex centering uses full slide height. */
+.slide--bigword {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.slide--bigword .bw {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: 96pt;
+  line-height: 1.0;
+  letter-spacing: var(--tracking-tight);
+  max-width: 92%;
+  color: var(--color-text-primary);
+}
+.slide--bigword .bw--md { font-size: 72pt; }
+.slide--bigword .bw--sm { font-size: 56pt; }
+.slide--bigword .bw--accent { color: var(--color-accent-purple); }
+.slide--bigword .bw--orange { color: var(--color-accent-orange); }
+.slide--bigword .bw .strike {
+  text-decoration: line-through;
+  text-decoration-color: var(--color-accent-orange);
+  text-decoration-thickness: 6px;
+  color: var(--color-text-disabled);
+}
+.slide--bigword .bw__arrow {
+  display: block;
+  font-size: 32pt;
+  font-weight: var(--weight-light);
+  margin: 24px 0 16px;
+  color: var(--color-text-muted);
+}
+.slide--bigword .bw__sub {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 18pt;
+  font-weight: var(--weight-regular);
+  color: var(--color-accent-orange);
+  margin-top: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Multi-line BIG-WORD with per-line stagger (replaces 3-4 chain slides) */
+.slide--bigword .bw-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: center;
+  text-align: center;
+}
+.slide--bigword .bw-stack > * { display: block; line-height: 1.0; }
+/* When a bw is also a stack, kill the container pop-in so the per-line
+   stagger reads cleanly. */
+.slide.is-active.slide--bigword .bw.bw-stack { animation: fade-in 0.3s ease both; }
+.slide.is-active.slide--bigword .bw.bw-stack > * { animation: rise-in 0.5s ease-out both; }
+.slide.is-active.slide--bigword .bw.bw-stack > *:nth-child(1) { animation-delay: 0.05s; }
+.slide.is-active.slide--bigword .bw.bw-stack > *:nth-child(2) { animation-delay: 0.20s; }
+.slide.is-active.slide--bigword .bw.bw-stack > *:nth-child(3) { animation-delay: 0.35s; }
+.slide.is-active.slide--bigword .bw.bw-stack > *:nth-child(4) { animation-delay: 0.50s; }
+
+/* TRANSITION: muted big-word with soft accent */
+.slide--transition .bw {
+  font-weight: var(--weight-light);
+  color: var(--color-text-secondary);
+  font-size: 64pt;
+}
+
+/* IMAGE placeholder — clean card with caption */
+.image-card {
+  width: 100%;
+  height: 78%;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-subtle);
+  border: 1px dashed var(--color-border-on-white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-8);
+  text-align: center;
+}
+.image-card__icon {
+  font-family: var(--font-mono);
+  font-size: 13pt;
+  color: var(--color-text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.image-card__title {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: 28pt;
+  color: var(--color-text-primary);
+  line-height: 1.1;
+  max-width: 80%;
+}
+.image-card__sub {
+  font-family: var(--font-body);
+  font-size: 14pt;
+  color: var(--color-text-secondary);
+  max-width: 70%;
+}
+.image-card__corner {
+  position: absolute;
+  top: var(--space-6);
+  right: var(--space-6);
+  font-family: var(--font-mono);
+  font-size: 11pt;
+  color: var(--color-text-muted);
+  background: rgba(255, 255, 255, 0.85);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+}
+.image-card__caption {
+  position: absolute;
+  bottom: 8%;
+  left: 0; right: 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 14pt;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+/* Phone frame for screenshot mocks */
+.phones {
+  display: flex;
+  gap: 56px;
+  align-items: center;
+  justify-content: center;
+}
+.phone {
+  width: 240px;
+  height: 480px;
+  border-radius: 28px;
+  background: var(--color-bg-subtle);
+  border: 2px solid var(--color-text-primary);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.phone::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 18px;
+  background: var(--color-text-primary);
+  border-radius: 9px;
+}
+.phone__label {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 12pt;
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+  letter-spacing: 0.08em;
+}
+.phone__screen {
+  margin: 36px 12px 12px;
+  flex: 1;
+  border-radius: 12px;
+  background: linear-gradient(160deg, #fff, #f0f0f0);
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 8px;
+  overflow: hidden;
+}
+.phone__row {
+  height: 14px;
+  background: var(--color-bg-subtle);
+  border-radius: 6px;
+}
+.phone__card {
+  height: 60px;
+  background: var(--color-pastel-peach);
+  border-radius: 10px;
+}
+.phone__card--mint { background: var(--color-pastel-mint); }
+.phone__card--purple { background: var(--color-pastel-purple); }
+.phone__card--yellow { background: var(--color-pastel-yellow); }
+.phone__hero {
+  height: 110px;
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 30% 30%, var(--color-accent-orange) 0%, var(--color-accent-orange-alt) 40%, transparent 65%),
+    linear-gradient(135deg, #2a1a0a, #4a2814);
+  position: relative;
+}
+.phone__hero::after {
+  content: 'Drinkit';
+  position: absolute;
+  bottom: 8px;
+  left: 10px;
+  font-family: var(--font-decorative);
+  font-weight: 500;
+  font-size: 14pt;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+/* Real-screenshot phone variant — used when wiring assets/screens/*.png */
+.phone--real { background: var(--color-text-primary); }
+.phone--real::before { display: none; }   /* hide the CSS notch */
+.phone--real .phone__screen {
+  margin: 0;
+  border-radius: 26px;
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+}
+.phone__shot {
+  width: 100%;
+  height: 100%;
+  border-radius: 22px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Code blocks — slight tweaks for slide-scale code */
+pre.code-block {
+  font-size: 13pt;
+  line-height: 1.45;
+  padding: var(--space-5) var(--space-6);
+  margin: 0;
+}
+.code-caption {
+  font-family: var(--font-mono);
+  font-size: 11pt;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 var(--space-3);
+}
+/* Highlight a line/span to call out a divergence-bug in code compare slides */
+.hl-bug {
+  background: rgba(255, 84, 1, 0.18);
+  outline: 1px solid rgba(255, 84, 1, 0.45);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+/* Same as hl-bug, but purple — "this is the divergence KMP removes"
+   (used on the "Remember this code? KMP fixes this." compare slide) */
+.hl-fix {
+  background: rgba(105, 75, 251, 0.16);
+  outline: 1px solid rgba(105, 75, 251, 0.45);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* Lightweight, hand-rolled syntax tint */
+.tok-k { color: var(--color-accent-purple); font-weight: var(--weight-semibold); }
+.tok-s { color: var(--color-accent-orange); }
+.tok-c { color: var(--color-text-muted); font-style: italic; }
+.tok-n { color: var(--color-accent-blue); }
+.tok-t { color: #006d77; }
+.tok-a { color: var(--color-text-secondary); }
+
+/* ---- Progressive code highlight (transport reveal slides) ----
+   .code-dim flattens the whole snippet to grey; any region wrapped in
+   .hl-keep restores its ORIGINAL colours (plain text + each token) and
+   goes bolder so it pops — the kept region looks exactly like the
+   undimmed code, just heavier; everything else is grey. */
+.code-block.code-dim,
+.code-block.code-dim .tok-k,
+.code-block.code-dim .tok-s,
+.code-block.code-dim .tok-c,
+.code-block.code-dim .tok-n,
+.code-block.code-dim .tok-t,
+.code-block.code-dim .tok-a {
+  color: var(--color-text-disabled);
+  font-weight: var(--weight-regular);
+  font-style: normal;
+}
+.code-block.code-dim .hl-keep { color: var(--color-text-primary); font-weight: var(--weight-bold); }
+.code-block.code-dim .hl-keep .tok-k { color: var(--color-accent-purple); font-weight: var(--weight-bold); }
+.code-block.code-dim .hl-keep .tok-s { color: var(--color-accent-orange); }
+.code-block.code-dim .hl-keep .tok-c { color: var(--color-text-muted); font-style: italic; }
+.code-block.code-dim .hl-keep .tok-n { color: var(--color-accent-blue); }
+.code-block.code-dim .hl-keep .tok-t { color: #006d77; }
+.code-block.code-dim .hl-keep .tok-a { color: var(--color-text-secondary); }
+
+/* Lists at slide scale */
+.slide ul.list { font-size: 16pt; line-height: 1.6; }
+.slide ol.list { font-size: 16pt; line-height: 1.6; }
+.slide ul.list--lg { font-size: 22pt; line-height: 1.55; }
+
+/* Compare layout: bigger headings, accent eyebrow already styled */
+.slide--two-col .slide__col h4 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: 22pt;
+  margin: 0 0 var(--space-3);
+  line-height: 1.2;
+}
+
+/* DIAGRAM container */
+.diagram-wrap {
+  width: 100%;
+  height: 88%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.diagram-wrap svg { max-width: 100%; max-height: 100%; }
+
+/* When .slide__body is also .diagram-wrap, drop the 85% max-width
+   constraint inherited from slide.css `.slide--content .slide__body`
+   so the diagram fills the slide instead of being letterboxed.
+   Both selectors carry the same specificity (0,2,0); deck.css loads
+   after slide.css, so this rule wins. */
+.slide__body.diagram-wrap {
+  max-width: 100%;
+  width: 100%;
+}
+
+/* Replacement for inline <svg> when a diagram is supplied as a PNG.
+   Fills the diagram-wrap; aspect ratio preserved via object-fit. */
+.diagram-img {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Section title slides — give them a nicer canvas */
+.slide--section {
+  background: var(--color-bg);
+}
+.slide--section .slide__section-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 14pt;
+  color: var(--color-accent-purple);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
+}
+.slide--section .slide__section-title {
+  font-size: 52pt;
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+}
+.slide--section .slide__section-rule {
+  width: 96px;
+  height: 6px;
+  background: var(--color-accent-orange);
+  margin-top: var(--space-6);
+}
+
+/* Outro / cover refinements */
+/* Cover (slide 1) + closing slide (114) — identical static pastel blooms. */
+.slide--cover,
+.bg-cover-blooms {
+  background:
+    radial-gradient(circle at 88% 12%, var(--color-pastel-peach) 0%, transparent 30%),
+    radial-gradient(circle at 12% 92%, var(--color-pastel-purple) 0%, transparent 32%),
+    var(--color-bg);
+}
+.slide--cover .slide__big-title {
+  font-size: 64pt;
+  max-width: 88%;
+  letter-spacing: -0.02em;
+}
+.slide--cover .slide__big-title em {
+  font-style: normal;
+  color: var(--color-accent-purple);
+}
+.slide--cover .slide__big-subtitle {
+  font-size: 16pt;
+  margin-top: var(--space-6);
+  color: var(--color-text-secondary);
+}
+.slide--cover .cover__brand {
+  position: absolute;
+  top: var(--slide-pad-top);
+  left: var(--slide-pad-left);
+  font-family: var(--font-mono);
+  font-size: 12pt;
+  color: var(--color-text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* QR placeholder */
+.qr {
+  width: 220px;
+  height: 220px;
+  background:
+    repeating-linear-gradient(0deg, var(--color-text-primary) 0, var(--color-text-primary) 8px, transparent 8px, transparent 16px),
+    repeating-linear-gradient(90deg, var(--color-text-primary) 0, var(--color-text-primary) 8px, transparent 8px, transparent 16px);
+  background-color: var(--color-bg-subtle);
+  border-radius: var(--radius-md);
+  position: relative;
+}
+.qr::before, .qr::after, .qr > span {
+  content: '';
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border: 8px solid var(--color-text-primary);
+  background: var(--color-bg);
+}
+.qr::before { top: 8px; left: 8px; }
+.qr::after  { top: 8px; right: 8px; }
+.qr > span  { bottom: 8px; left: 8px; }
+
+/* ──── Animations ─────────────────────────────────────────── */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop-in {
+  0%   { opacity: 0; transform: scale(0.88); }
+  60%  { opacity: 1; transform: scale(1.03); }
+  100% { transform: scale(1.0); }
+}
+@keyframes slide-from-left {
+  from { opacity: 0; transform: translateX(-48px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slide-from-right {
+  from { opacity: 0; transform: translateX(48px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes draw-rule {
+  from { width: 0; }
+  to   { width: 96px; }
+}
+@keyframes underline-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+.slide.is-active.slide--bigword .bw     { animation: pop-in 0.5s ease-out both; }
+.slide.is-active.slide--transition .bw  { animation: fade-in 0.6s ease both; }
+.slide.is-active .anim-rise             { animation: rise-in 0.5s ease-out both; }
+.slide.is-active .anim-rise-2           { animation: rise-in 0.5s ease-out 0.12s both; }
+.slide.is-active .anim-rise-3           { animation: rise-in 0.5s ease-out 0.24s both; }
+.slide.is-active .anim-rise-4           { animation: rise-in 0.5s ease-out 0.36s both; }
+.slide.is-active .anim-from-left        { animation: slide-from-left 0.5s ease-out both; }
+.slide.is-active .anim-from-right       { animation: slide-from-right 0.5s ease-out both; }
+.slide.is-active .anim-fade             { animation: fade-in 0.6s ease both; }
+.slide.is-active.slide--section .slide__section-rule { animation: draw-rule 0.6s ease-out 0.3s both; }
+.slide.is-active.slide--section .slide__section-eyebrow { animation: rise-in 0.4s ease-out both; }
+.slide.is-active.slide--section .slide__section-title   { animation: rise-in 0.5s ease-out 0.12s both; }
+.slide.is-active.slide--cover .slide__big-title    { animation: rise-in 0.6s ease-out 0.1s both; }
+.slide.is-active.slide--cover .slide__big-subtitle { animation: rise-in 0.5s ease-out 0.35s both; }
+.slide.is-active .stagger > * { animation: rise-in 0.45s ease-out both; }
+.slide.is-active .stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.slide.is-active .stagger > *:nth-child(2) { animation-delay: 0.15s; }
+.slide.is-active .stagger > *:nth-child(3) { animation-delay: 0.25s; }
+.slide.is-active .stagger > *:nth-child(4) { animation-delay: 0.35s; }
+.slide.is-active .stagger > *:nth-child(5) { animation-delay: 0.45s; }
+.slide.is-active .stagger > *:nth-child(6) { animation-delay: 0.55s; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* ──── Print / PDF export ─────────────────────────────────── */
+@media print {
+  body { background: #fff; }
+  .nav, .hint { display: none !important; }
+  .stage { position: static; }
+  .deck { transform: none !important; width: auto; height: auto; }
+  .deck .slide { display: block !important; page-break-after: always; box-shadow: none; }
+}
+
+/* ============================================================
+   v3 additions
+   ============================================================ */
+
+/* ---- Section-title radial-pastel bloom backgrounds ----
+   Pair with .slide--bigword or .slide--section section-title slides.
+   The radial gradient blooms up from the bottom and fades to white
+   so black title text stays high-contrast in the upper half. */
+.slide.bg-bloom {
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 110%,
+    var(--bloom-color, var(--color-accent-purple)) 0%,
+    color-mix(in srgb, var(--bloom-color, var(--color-accent-purple)) 40%, #fff) 30%,
+    #fff 70%
+  );
+}
+.slide.bg-bloom.bloom--purple { --bloom-color: var(--color-accent-purple); }
+.slide.bg-bloom.bloom--blue   { --bloom-color: var(--color-pastel-blue-bold, #3366FF); }
+.slide.bg-bloom.bloom--orange { --bloom-color: var(--color-accent-orange); }
+.slide.bg-bloom.bloom--mint   { --bloom-color: var(--color-pastel-mint-bold, #34D399); }
+
+/* ---- Full-bleed slide (suppresses title chrome + padding) ---- */
+.slide.slide--bleed {
+  padding: 0;
+  overflow: hidden;
+}
+.slide.slide--bleed .slide__page-num { display: none; }
+
+/* ---- Five-video tile (slide 16 in v3) ---- */
+.video-tile {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+.video-tile > video {
+  height: 100%;
+  width: auto;
+  flex: 0 0 auto;
+  object-fit: cover;
+}
+
+/* ---- Hero side-by-side phones grid (normalizes slides 8-11 in v3) ---- */
+.phones-hero {
+  display: flex;
+  gap: var(--space-8, 32px);
+  align-items: center;
+  justify-content: center;
+  height: 82%;
+}
+.phones-hero .phone {
+  flex: 0 1 auto;
+  height: 100%;
+}
+.phones-hero .phone__screen {
+  height: 100%;
+  aspect-ratio: 9 / 19.5;
+}
+
+/* ---- Caption under a code block (v3 use on slides 50, 51) ---- */
+.code-caption-bottom {
+  margin-top: var(--space-3, 12px);
+  font-size: 11pt;
+  color: var(--color-text-secondary, #666);
+  font-style: italic;
+}
+
+/* ---- Closing-slide contact avatar (v3.1) ---- */
+.contacts-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0 0 var(--space-4, 16px);
+  box-shadow: var(--shadow-md);
+}

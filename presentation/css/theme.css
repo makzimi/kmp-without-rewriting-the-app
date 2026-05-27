@@ -1,0 +1,167 @@
+/* ============================================================
+   Dodo Engineering — Light theme
+   Extracted from: Шаблон Dodo Engineering (светлая).pptx
+   Use the CSS variables below to build slides that match the
+   original deck. Pair with slide.css for layout primitives.
+   ============================================================ */
+
+/* Web fonts — Helvetica Neue is system-only; Source Code Pro
+   and Montserrat are loaded from Google Fonts so any browser
+   can render them. */
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&family=Montserrat:wght@500&display=swap');
+
+:root {
+  /* ─── Brand color tokens ─────────────────────────────────── */
+
+  /* Surfaces / backgrounds */
+  --color-bg:                #FFFFFF;
+  --color-bg-subtle:         #F5F5F5;
+  --color-border-on-white:   #B8B8B8;
+
+  /* Text */
+  --color-text-primary:      #161616;
+  --color-text-secondary:    #595959;
+  --color-text-muted:        #808080;
+  --color-text-disabled:     #B8B8B8;
+  --color-text-on-accent:    #FFFFFF;
+  --color-text-on-pastel:    #161616;
+
+  /* Bright accents (six-color palette) */
+  --color-accent-purple:     #694BFB;
+  --color-accent-orange:     #FF5401;
+  --color-accent-orange-alt: #FB5508;
+  --color-accent-mint:       #94E4CC;
+  --color-accent-yellow:     #FFE146;
+  --color-accent-blue:       #428EFF;
+  --color-accent-pink:       #FF81EF;
+
+  /* Pastel accents (five-color softer palette) */
+  --color-pastel-purple:     #B8B8FF;
+  --color-pastel-peach:      #FFC2A5;
+  --color-pastel-mint:       #D2FCEE;
+  --color-pastel-yellow:     #FFF3B5;
+  --color-pastel-pink:       #FFCCF9;
+
+  /* Semantic aliases (so AI agents don't have to pick colors) */
+  --color-link:              var(--color-accent-blue);
+  --color-link-hover:        var(--color-accent-purple);
+  --color-success:           var(--color-accent-mint);
+  --color-warning:           var(--color-accent-yellow);
+  --color-danger:            var(--color-accent-orange);
+  --color-info:              var(--color-accent-blue);
+
+  /* Code colors */
+  --color-code-bg:           #F5F5F5;
+  --color-code-text:         #161616;
+  --color-code-comment:      #808080;
+  --color-code-keyword:      #694BFB;
+  --color-code-string:       #FF5401;
+  --color-code-number:       #428EFF;
+
+  /* ─── Typography ─────────────────────────────────────────── */
+
+  --font-display:        'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  --font-display-light:  'Helvetica Neue Light', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  --font-body:           'Helvetica Neue Light', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  --font-body-strong:    'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+  --font-mono:           'Source Code Pro', 'SF Mono', 'Menlo', 'Consolas', monospace;
+  --font-mono-semibold:  'Source Code Pro SemiBold', 'Source Code Pro', 'SF Mono', monospace;
+  --font-decorative:     'Montserrat', 'Helvetica Neue', sans-serif;
+
+  /* Font weights */
+  --weight-light:    300;
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* Sizes — expressed in pt for fidelity with the original deck
+     and in px for default web rendering at a 1280x720 slide.    */
+  --size-cover-xl:   80pt;
+  --size-cover-l:    60pt;
+  --size-cover-m:    52pt;
+  --size-section:    40pt;
+  --size-h1:         32pt;
+  --size-h2:         24pt;
+  --size-h3:         20pt;
+  --size-h4:         18pt;
+  --size-h5:         16pt;
+  --size-subtitle:   14pt;
+  --size-body:       12pt;
+  --size-small:      13pt;
+  --size-caption:    10pt;
+
+  /* Line heights */
+  --leading-tight:   1.0;
+  --leading-snug:    1.15;
+  --leading-normal:  1.35;
+  --leading-loose:   1.5;
+
+  /* Letter spacing */
+  --tracking-tight:  -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.04em;
+
+  /* ─── Spacing scale (4px base) ───────────────────────────── */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ─── Radii ──────────────────────────────────────────────── */
+  --radius-none: 0;
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   16px;
+  --radius-pill: 9999px;
+
+  /* ─── Elevation ──────────────────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgba(22, 22, 22, 0.06);
+  --shadow-md: 0 2px 8px rgba(22, 22, 22, 0.08);
+  --shadow-lg: 0 6px 24px rgba(22, 22, 22, 0.10);
+
+  /* ─── Stroke widths ──────────────────────────────────────── */
+  --stroke-thin:   1px;
+  --stroke-medium: 2px;
+  --stroke-thick:  4px;
+
+  /* ─── Slide geometry ─────────────────────────────────────── */
+  --slide-width:        1280px;
+  --slide-height:       720px;
+  --slide-aspect:       calc(16 / 9);
+  --slide-pad-top:      5.3%;     /* = 0.30" / 5.625"  */
+  --slide-pad-right:    3%;       /* = 0.30" / 10"     */
+  --slide-pad-bottom:   5.3%;
+  --slide-pad-left:     3%;       /* = 0.29" / 10"     */
+  --slide-title-y:      5.33%;
+  --slide-title-height: 11.2%;
+  --slide-body-y:       27.9%;
+  --slide-body-height:  66.5%;
+  --slide-footer-y:     92%;
+}
+
+/* ============================================================
+   BASE RESET (only the bits needed for slides — feel free to
+   keep or drop). Keeps boxes predictable across browsers.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body);
+  font-weight: var(--weight-light);
+  color: var(--color-text-primary);
+  background: var(--color-bg);
+  font-size: var(--size-body);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
