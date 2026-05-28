@@ -33,16 +33,18 @@ codebase and hand-drawn architecture diagrams.
 
 ```
 .
+├── README.md              ← this file
+├── PRESENTATION_PLAN.md   ← the talk script — slide-by-slide intent + notes
+├── ASSETS.md              ← asset checklist
+├── CLAUDE.md              ← editor instructions (the sync rule)
 ├── presentation/          ← the deployed deck (this is the published site)
 │   ├── index.html         ← all 114 slides, fixed 1280×720, in plan order
 │   ├── css/               ← theme + slide primitives + deck runtime/animations
 │   ├── js/nav.js          ← keyboard / touch nav, scaling, overview, fullscreen
 │   ├── assets/            ← screenshots, diagrams, short videos
-│   ├── README.md          ← how to run the deck locally
 │   └── AUTHORING.md       ← how the deck is built and how to edit it
-├── PRESENTATION_PLAN.md   ← the talk script — slide-by-slide intent + notes
-├── ASSETS.md              ← asset checklist
-└── dodo-theme/            ← reference design theme (palette, typography)
+├── dodo-theme/            ← reference design theme (palette, typography)
+└── docs/                  ← iteration specs + plans (point-in-time records)
 ```
 
 `PRESENTATION_PLAN.md` and `presentation/index.html` are kept **in sync** —
@@ -56,9 +58,46 @@ It's a plain static site; any file server works:
 cd presentation
 python3 -m http.server 8000
 # → open http://localhost:8000
+
+# Or with Node:
+npx --yes http-server presentation -p 8000 -c-1
 ```
 
 Best viewed in **Chrome** (the deck uses inline autoplay/loop `<video>`).
+Double-clicking `presentation/index.html` also works — fonts load over
+HTTPS from Google Fonts.
+
+## Controls
+
+| Key                         | Action                          |
+|-----------------------------|---------------------------------|
+| `→` `Space` `PageDown` `l`  | Next slide                      |
+| `←` `PageUp` `h`            | Previous slide                  |
+| `Home` / `End`              | Jump to first / last            |
+| `O` / `Esc`                 | Toggle overview grid            |
+| `F`                         | Toggle fullscreen               |
+| `G`                         | Go to slide # (prompts)         |
+| swipe ←/→ on touchscreen    | Prev / Next                     |
+| URL `#42`                   | Deep-link to slide 42           |
+
+The current slide is reflected in the URL hash so you can share a link
+to any slide.
+
+## Export to PDF
+
+```
+1. Open the deck in Chrome.
+2. ⌘P (Print).
+3. Destination: "Save as PDF".
+4. Layout: Landscape.
+5. Margins: None.
+6. Paper size: any 16:9 (e.g. 1280×720) or A4 landscape.
+7. Background graphics: ON.
+```
+
+`@media print` in `presentation/css/deck.css` flattens all 114 slides into
+sequential pages with `page-break-after`, hides the nav chrome, and keeps
+colors and shadows — one slide per page.
 
 ## How it's published
 

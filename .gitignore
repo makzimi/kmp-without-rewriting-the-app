@@ -1,4 +1,4 @@
-# macOS / editor noise
+# ─── macOS / editor noise ─────────────────────────────────
 .DS_Store
 **/.DS_Store
 .idea/
@@ -6,11 +6,34 @@
 *.swp
 *.swo
 
-# Logs and tmp
+# ─── Logs and tmp ─────────────────────────────────────────
 *.log
 .tmp/
 
-# Node / Python
+# ─── Node / Python ────────────────────────────────────────
 node_modules/
 __pycache__/
 *.pyc
+
+# ─── Android build artifacts ──────────────────────────────
+**/build/
+**/.gradle/
+**/local.properties
+**/captures/
+**/.cxx/
+
+# ─── Xcode / iOS build artifacts ──────────────────────────
+**/DerivedData/
+**/xcuserdata/
+**/*.xcuserstate
+**/.swiftpm/
+**/Pods/
+
+# ─── Code-citation sources — kept locally, never committed ──
+# code-examples/ holds real Dodo product source (Android + iOS) used only
+# as the origin of trimmed snippets shown on code slides. drinkit-mobile-kmp
+# is its own repo at git@github.com:dodobrands/drinkit-mobile-kmp.git.
+code-examples/
+
+# ─── Local agent settings ─────────────────────────────────
+.claude/

@@ -4,7 +4,7 @@ How this deck is built and how to change it in future sessions.
 Aimed at the **next person editing the talk** (which may be a fresh
 Claude session — write changes accordingly).
 
-> See [`README.md`](README.md) for how to *run* the deck. This file
+> See [`../README.md`](../README.md) for how to *run* the deck. This file
 > is about how to *edit* it.
 
 ---
@@ -86,8 +86,7 @@ grep -cE '^### Slide [0-9]+ ' PRESENTATION_PLAN.md
 
 ```
 presentation/
-├── README.md          ← how to run
-├── AUTHORING.md       ← this file
+├── AUTHORING.md       ← this file (run instructions live in ../README.md)
 ├── index.html         ← all slides, in plan order, one <section> each
 ├── css/
 │   ├── theme.css      ← COPY of ../dodo-theme/css/theme.css   (don't edit here)
@@ -546,7 +545,7 @@ case 'p':
   break;
 ```
 
-Then mention it in `README.md` and the `.hint` line at the bottom of
+Then mention it in `../README.md` and the `.hint` line at the bottom of
 `index.html`.
 
 ### Adding a new nav button
